@@ -66,7 +66,7 @@ export function SubscriptionList({ subscriptions, onEdit, onDelete, onAdd }: Sub
           <p className="text-muted-foreground mt-2 mb-6 max-w-sm">
             Start tracking your subscriptions to get insights into your spending.
           </p>
-          <Button onClick={onAdd}>Add Your First Subscription</Button>
+          <Button onClick={onAdd} className="btn-neon">Add Your First Subscription</Button>
         </CardContent>
       </Card>
     );

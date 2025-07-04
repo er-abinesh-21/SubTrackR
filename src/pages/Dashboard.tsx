@@ -138,7 +138,7 @@ const Dashboard = () => {
             Track your subscriptions and manage your spending.
           </p>
         </div>
-        <Button onClick={() => handleOpenForm()}>
+        <Button onClick={() => handleOpenForm()} className="btn-neon">
           <PlusCircle className="mr-2 h-4 w-4" /> Add Subscription
         </Button>
       </div>

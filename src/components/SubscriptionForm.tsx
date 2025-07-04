@@ -223,7 +223,7 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
           />
         </div>
         <div className="flex justify-end pt-4">
-            <Button type="submit" disabled={isSaving}>
+            <Button type="submit" disabled={isSaving} className="btn-neon">
                 {isSaving ? "Saving..." : "Save Subscription"}
             </Button>
         </div>

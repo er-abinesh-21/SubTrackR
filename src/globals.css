@@ -85,4 +85,7 @@
   .card-neon-shadow {
     box-shadow: 0 0 15px hsl(var(--neon-cyan) / 0.2), 0 0 5px hsl(var(--neon-cyan) / 0.1);
   }
+  .btn-neon {
+    box-shadow: 0 0 5px hsl(var(--neon-cyan) / 0.8), 0 0 10px hsl(var(--neon-cyan) / 0.5);
+  }
 }
