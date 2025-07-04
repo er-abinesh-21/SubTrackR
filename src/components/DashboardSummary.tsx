@@ -33,14 +33,15 @@ interface StatCardProps {
   title: string;
   value: string | number;
   icon: React.ElementType;
+  isCurrency: boolean;
 }
 
-const StatCard = ({ title, value, icon: Icon }: StatCardProps) => (
-  <Card>
+const StatCard = ({ title, value, icon: Icon, isCurrency }: StatCardProps) => (
+  <Card className="card-neon-shadow">
     <CardContent className="p-4 flex items-center justify-between">
       <div>
         <p className="text-sm text-muted-foreground">{title}</p>
-        <p className="text-2xl font-bold text-neon">{value}</p>
+        <p className={`text-2xl font-bold ${!isCurrency ? 'text-neon' : ''}`}>{value}</p>
       </div>
       <div className="p-3 rounded-md bg-secondary">
         <Icon className="h-5 w-5 text-secondary-foreground" />
@@ -82,22 +83,26 @@ export function DashboardSummary({ subscriptions }: DashboardSummaryProps) {
         <StatCard 
           title="Monthly Cost" 
           value={formatCurrency(monthlyTotal, primaryCurrency)} 
-          icon={Calendar} 
+          icon={Calendar}
+          isCurrency={true}
         />
         <StatCard 
           title="Yearly Cost" 
           value={formatCurrency(totalYearlyCost, primaryCurrency)} 
-          icon={TrendingUp} 
+          icon={TrendingUp}
+          isCurrency={true}
         />
         <StatCard 
           title="Active Subscriptions" 
           value={activeSubscriptions.length} 
-          icon={CreditCard} 
+          icon={CreditCard}
+          isCurrency={false}
         />
         <StatCard 
           title="Due This Week" 
           value={dueThisWeekCount} 
-          icon={Bell} 
+          icon={Bell}
+          isCurrency={false}
         />
       </div>
       {allCurrencies.size > 1 && (

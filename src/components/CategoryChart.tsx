@@ -74,7 +74,7 @@ export function CategoryChart({ subscriptions }: CategoryChartProps) {
   );
 
   return (
-    <Card className="flex flex-col h-full">
+    <Card className="flex flex-col h-full card-neon-shadow">
       <CardHeader className="flex flex-row items-center justify-between pb-4">
         <CardTitle className="text-neon">Category Breakdown</CardTitle>
         <div className="flex items-center gap-1 bg-muted p-1 rounded-md">

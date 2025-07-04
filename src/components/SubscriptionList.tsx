@@ -59,7 +59,7 @@ export function SubscriptionList({ subscriptions, onEdit, onDelete, onAdd }: Sub
 
   if (subscriptions.length === 0) {
     return (
-      <Card>
+      <Card className="card-neon-shadow">
         <CardContent className="text-center py-16 flex flex-col items-center">
           <CreditCard className="h-16 w-16 text-muted-foreground mb-4" />
           <h3 className="text-xl font-semibold">No subscriptions yet</h3>
@@ -73,7 +73,7 @@ export function SubscriptionList({ subscriptions, onEdit, onDelete, onAdd }: Sub
   }
 
   return (
-    <Card>
+    <Card className="card-neon-shadow">
       <CardHeader>
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <CardTitle className="text-neon">All Subscriptions</CardTitle>
