@@ -36,17 +36,17 @@
   }
 
   .dark {
-    --background: 240 10% 4%;
+    --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
  
-    --card: 240 10% 10% / 0.1;
+    --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
  
-    --popover: 240 10% 10% / 0.1;
+    --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
  
-    --primary: 180 100% 50%; /* Cyan */
-    --primary-foreground: 240 10% 4%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
  
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -60,9 +60,9 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
  
-    --border: 180 100% 50% / 0.1;
-    --input: 217.2 32.6% 17.5% / 0.5;
-    --ring: 180 100% 50%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 210 40% 98%;
   }
 }
 
@@ -73,7 +73,5 @@
 
   body {
     @apply bg-background text-foreground;
-    background-image: radial-gradient(circle at top left, hsl(var(--primary) / 0.1), transparent 30%),
-                      radial-gradient(circle at bottom right, #FF00FF20, transparent 30%);
   }
 }
