@@ -35,12 +35,12 @@ const AppLayout = () => {
   const userInitials = user?.email?.substring(0, 2).toUpperCase() || 'U';
 
   return (
-    <div className="min-h-screen w-full bg-gray-50 dark:bg-gray-950">
-      <header className="sticky top-0 z-40 w-full border-b bg-white dark:bg-background">
+    <div className="min-h-screen w-full dark:bg-transparent">
+      <header className="sticky top-0 z-40 w-full border-b border-primary/20 bg-background/50 backdrop-blur-lg">
         <div className="container mx-auto flex h-16 items-center px-4 sm:px-8">
           <div className="flex items-center gap-10">
             <Link to="/dashboard" className="flex items-center space-x-2">
-              <span className="inline-block font-bold text-lg">SubTrackR</span>
+              <span className="inline-block font-bold text-lg text-primary" style={{ textShadow: '0 0 8px hsl(var(--primary))' }}>SubTrackR</span>
             </Link>
             <nav className="hidden gap-6 md:flex">
               <Link
@@ -56,13 +56,13 @@ const AppLayout = () => {
           <div className="ml-auto flex items-center space-x-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                  <Avatar className="h-9 w-9">
-                    <AvatarFallback>{userInitials}</AvatarFallback>
+                <Button variant="ghost" className="relative h-9 w-9 rounded-full hover:bg-primary/10">
+                  <Avatar className="h-9 w-9 border-2 border-primary/50">
+                    <AvatarFallback className="bg-transparent">{userInitials}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuContent className="w-56 bg-background/80 backdrop-blur-lg border-primary/20" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">My Account</p>
@@ -71,8 +71,8 @@ const AppLayout = () => {
                     </p>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
+                <DropdownMenuSeparator className="bg-primary/20" />
+                <DropdownMenuItem onClick={handleLogout} className="focus:bg-primary/20">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>

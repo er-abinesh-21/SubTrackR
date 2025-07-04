@@ -103,7 +103,7 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
             <FormItem>
               <FormLabel>Subscription Name</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., Netflix" {...field} />
+                <Input placeholder="e.g., Netflix" {...field} className="bg-background/50 border-primary/20 focus:ring-primary" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -117,7 +117,7 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
               <FormItem className="md:col-span-2">
                 <FormLabel>Price</FormLabel>
                 <FormControl>
-                  <Input type="number" step="0.01" placeholder="e.g., 9.99" {...field} />
+                  <Input type="number" step="0.01" placeholder="e.g., 9.99" {...field} className="bg-background/50 border-primary/20 focus:ring-primary" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -131,13 +131,13 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
                 <FormLabel>Currency</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-background/50 border-primary/20 focus:ring-primary">
                       <SelectValue placeholder="Select currency" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
+                  <SelectContent className="bg-background/80 backdrop-blur-lg border-primary/20">
                     {CURRENCIES.map(c => (
-                      <SelectItem key={c.value} value={c.value}>{c.label.split(' - ')[0]}</SelectItem>
+                      <SelectItem key={c.value} value={c.value} className="focus:bg-primary/20">{c.label.split(' - ')[0]}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -153,7 +153,7 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
               <FormItem>
                 <FormLabel>Category</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g., Entertainment" {...field} />
+                  <Input placeholder="e.g., Entertainment" {...field} className="bg-background/50 border-primary/20 focus:ring-primary" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -168,14 +168,14 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
                 <FormLabel>Billing Cycle</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-background/50 border-primary/20 focus:ring-primary">
                       <SelectValue placeholder="Select a billing cycle" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
-                    <SelectItem value="monthly">Monthly</SelectItem>
-                    <SelectItem value="yearly">Yearly</SelectItem>
-                    <SelectItem value="one-time">One-time</SelectItem>
+                  <SelectContent className="bg-background/80 backdrop-blur-lg border-primary/20">
+                    <SelectItem value="monthly" className="focus:bg-primary/20">Monthly</SelectItem>
+                    <SelectItem value="yearly" className="focus:bg-primary/20">Yearly</SelectItem>
+                    <SelectItem value="one-time" className="focus:bg-primary/20">One-time</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -194,7 +194,7 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "w-full pl-3 text-left font-normal",
+                          "w-full pl-3 text-left font-normal bg-background/50 border-primary/20 hover:bg-primary/10",
                           !field.value && "text-muted-foreground"
                         )}
                       >
@@ -207,7 +207,7 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
+                  <PopoverContent className="w-auto p-0 bg-background/80 backdrop-blur-lg border-primary/20" align="start">
                     <Calendar
                       mode="single"
                       selected={field.value}
@@ -223,7 +223,7 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
           />
         </div>
         <div className="flex justify-end pt-4">
-            <Button type="submit" disabled={isSaving}>
+            <Button type="submit" disabled={isSaving} className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/30">
                 {isSaving ? "Saving..." : "Save Subscription"}
             </Button>
         </div>

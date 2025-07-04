@@ -33,18 +33,17 @@ interface StatCardProps {
   title: string;
   value: string | number;
   icon: React.ElementType;
-  iconBgClass: string;
 }
 
-const StatCard = ({ title, value, icon: Icon, iconBgClass }: StatCardProps) => (
-  <Card>
+const StatCard = ({ title, value, icon: Icon }: StatCardProps) => (
+  <Card className="bg-primary/5 backdrop-blur-sm border border-primary/20 shadow-lg shadow-primary/10">
     <CardContent className="p-4 flex items-center justify-between">
       <div>
         <p className="text-sm text-muted-foreground">{title}</p>
-        <p className="text-2xl font-bold">{value}</p>
+        <p className="text-2xl font-bold text-foreground" style={{ textShadow: '0 0 2px hsl(var(--foreground))' }}>{value}</p>
       </div>
-      <div className={`p-3 rounded-md ${iconBgClass}`}>
-        <Icon className="h-5 w-5 text-white" />
+      <div className="p-3 rounded-md bg-primary/20">
+        <Icon className="h-5 w-5 text-primary" style={{ filter: 'drop-shadow(0 0 4px hsl(var(--primary)))' }} />
       </div>
     </CardContent>
   </Card>
@@ -84,25 +83,21 @@ export function DashboardSummary({ subscriptions }: DashboardSummaryProps) {
           title="Monthly Cost" 
           value={formatCurrency(monthlyTotal, primaryCurrency)} 
           icon={Calendar} 
-          iconBgClass="bg-blue-500"
         />
         <StatCard 
           title="Yearly Cost" 
           value={formatCurrency(totalYearlyCost, primaryCurrency)} 
           icon={TrendingUp} 
-          iconBgClass="bg-green-500"
         />
         <StatCard 
           title="Active Subscriptions" 
           value={activeSubscriptions.length} 
           icon={CreditCard} 
-          iconBgClass="bg-yellow-500"
         />
         <StatCard 
           title="Due This Week" 
           value={dueThisWeekCount} 
           icon={Bell} 
-          iconBgClass="bg-red-500"
         />
       </div>
       {allCurrencies.size > 1 && (

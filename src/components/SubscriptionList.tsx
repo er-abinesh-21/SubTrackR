@@ -59,41 +59,41 @@ export function SubscriptionList({ subscriptions, onEdit, onDelete, onAdd }: Sub
 
   if (subscriptions.length === 0) {
     return (
-      <Card>
+      <Card className="bg-primary/5 backdrop-blur-sm border border-primary/20 shadow-lg shadow-primary/10">
         <CardContent className="text-center py-16 flex flex-col items-center">
-          <CreditCard className="h-16 w-16 text-gray-300 mb-4" />
+          <CreditCard className="h-16 w-16 text-primary/50 mb-4" style={{ filter: 'drop-shadow(0 0 8px hsl(var(--primary) / 0.5))' }} />
           <h3 className="text-xl font-semibold">No subscriptions yet</h3>
           <p className="text-muted-foreground mt-2 mb-6 max-w-sm">
             Start tracking your subscriptions to get insights into your spending.
           </p>
-          <Button onClick={onAdd}>Add Your First Subscription</Button>
+          <Button onClick={onAdd} variant="default" className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/30">Add Your First Subscription</Button>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card>
+    <Card className="bg-primary/5 backdrop-blur-sm border border-primary/20 shadow-lg shadow-primary/10">
       <CardHeader>
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <CardTitle>All Subscriptions</CardTitle>
+          <CardTitle className="text-primary" style={{ textShadow: '0 0 8px hsl(var(--primary))' }}>All Subscriptions</CardTitle>
           <div className="flex items-center gap-2 w-full md:w-auto">
             <div className="relative w-full md:w-64">
               <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
               <Input 
                 placeholder="Search subscriptions..." 
-                className="pl-8"
+                className="pl-8 bg-background/50 border-primary/20 focus:ring-primary"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-full md:w-[180px]">
+              <SelectTrigger className="w-full md:w-[180px] bg-background/50 border-primary/20 focus:ring-primary">
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background/80 backdrop-blur-lg border-primary/20">
                 {categories.map(cat => (
-                  <SelectItem key={cat} value={cat}>
+                  <SelectItem key={cat} value={cat} className="focus:bg-primary/20">
                     {cat === 'all' ? 'All Categories' : cat}
                   </SelectItem>
                 ))}
@@ -106,7 +106,7 @@ export function SubscriptionList({ subscriptions, onEdit, onDelete, onAdd }: Sub
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="border-b-primary/20">
                 <TableHead className="w-[60px]"></TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Category</TableHead>
@@ -119,7 +119,7 @@ export function SubscriptionList({ subscriptions, onEdit, onDelete, onAdd }: Sub
             <TableBody>
               {filteredSubscriptions.length > 0 ? (
                 filteredSubscriptions.map((sub) => (
-                  <TableRow key={sub.id}>
+                  <TableRow key={sub.id} className="border-b-primary/10 hover:bg-primary/10">
                     <TableCell>
                       <SubscriptionIcon name={sub.name} />
                     </TableCell>
@@ -131,17 +131,17 @@ export function SubscriptionList({ subscriptions, onEdit, onDelete, onAdd }: Sub
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
+                          <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-primary/20 focus:bg-primary/20">
                             <span className="sr-only">Open menu</span>
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => onEdit(sub)}>
+                        <DropdownMenuContent align="end" className="bg-background/80 backdrop-blur-lg border-primary/20">
+                          <DropdownMenuItem onClick={() => onEdit(sub)} className="focus:bg-primary/20">
                             <Edit className="mr-2 h-4 w-4" />
                             <span>Edit</span>
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onDelete(sub.id)} className="text-red-500 hover:!text-red-500">
+                          <DropdownMenuItem onClick={() => onDelete(sub.id)} className="text-red-500 hover:!text-red-500 focus:bg-red-500/20 focus:text-red-500">
                             <Trash2 className="mr-2 h-4 w-4" />
                             <span>Delete</span>
                           </DropdownMenuItem>
