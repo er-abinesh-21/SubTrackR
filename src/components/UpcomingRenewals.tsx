@@ -33,14 +33,14 @@ export function UpcomingRenewals({ subscriptions }: UpcomingRenewalsProps) {
     .slice(0, 5);
 
   return (
-    <Card className="h-full bg-primary/5 backdrop-blur-sm border border-primary/20 shadow-lg shadow-primary/10">
+    <Card className="h-full">
       <CardHeader>
-        <CardTitle className="text-primary" style={{ textShadow: '0 0 8px hsl(var(--primary))' }}>Upcoming Renewals</CardTitle>
+        <CardTitle>Upcoming Renewals</CardTitle>
       </CardHeader>
       <CardContent>
         {upcoming.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center text-muted-foreground py-10">
-            <Bell className="h-12 w-12 text-primary/50 mb-4" style={{ filter: 'drop-shadow(0 0 8px hsl(var(--primary) / 0.5))' }} />
+            <Bell className="h-12 w-12 text-muted-foreground mb-4" />
             <p>No upcoming renewals</p>
           </div>
         ) : (

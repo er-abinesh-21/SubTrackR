@@ -36,33 +36,33 @@
   }
 
   .dark {
-    --background: 224 71% 4%;
+    --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-
-    --card: 224 71% 4%;
+ 
+    --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
-
-    --popover: 224 71% 4%;
+ 
+    --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-
-    --primary: 262 88% 66%;
-    --primary-foreground: 224 71% 4%;
-
+ 
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+ 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
-
+ 
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 262 88% 66%;
+ 
+    --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
-
+ 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 27.5%;
+ 
+    --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 262 88% 66%;
+    --ring: 210 40% 98%;
   }
 }
 
@@ -73,12 +73,5 @@
 
   body {
     @apply bg-background text-foreground;
-  }
-
-  .dark body {
-    background-color: #02040c;
-    background-image: linear-gradient(180deg, rgba(2, 4, 12, 0) 0%, #02040c 100%),
-                      radial-gradient(ellipse at top, rgba(128, 90, 213, 0.2), transparent 50%);
-    background-attachment: fixed;
   }
 }

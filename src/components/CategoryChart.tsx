@@ -74,15 +74,15 @@ export function CategoryChart({ subscriptions }: CategoryChartProps) {
   );
 
   return (
-    <Card className="flex flex-col h-full bg-primary/5 backdrop-blur-sm border border-primary/20 shadow-lg shadow-primary/10">
+    <Card className="flex flex-col h-full">
       <CardHeader className="flex flex-row items-center justify-between pb-4">
-        <CardTitle className="text-primary" style={{ textShadow: '0 0 8px hsl(var(--primary))' }}>Category Breakdown</CardTitle>
-        <div className="flex items-center gap-1 bg-background/50 p-1 rounded-lg">
+        <CardTitle>Category Breakdown</CardTitle>
+        <div className="flex items-center gap-1 bg-muted p-1 rounded-md">
           <Button 
             variant={view === 'monthly' ? 'secondary' : 'ghost'} 
             size="sm" 
             onClick={() => setView('monthly')}
-            className="h-7 px-3 focus:bg-primary/20 hover:bg-primary/10"
+            className="h-7 px-3"
           >
             Monthly
           </Button>
@@ -90,7 +90,7 @@ export function CategoryChart({ subscriptions }: CategoryChartProps) {
             variant={view === 'yearly' ? 'secondary' : 'ghost'} 
             size="sm" 
             onClick={() => setView('yearly')}
-            className="h-7 px-3 focus:bg-primary/20 hover:bg-primary/10"
+            className="h-7 px-3"
           >
             Yearly
           </Button>

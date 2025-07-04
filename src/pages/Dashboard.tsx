@@ -133,12 +133,12 @@ const Dashboard = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-primary" style={{ textShadow: '0 0 10px hsl(var(--primary))' }}>Dashboard</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">Dashboard</h1>
           <p className="text-muted-foreground">
             Track your subscriptions and manage your spending.
           </p>
         </div>
-        <Button onClick={() => handleOpenForm()} className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/30">
+        <Button onClick={() => handleOpenForm()}>
           <PlusCircle className="mr-2 h-4 w-4" /> Add Subscription
         </Button>
       </div>
@@ -164,9 +164,9 @@ const Dashboard = () => {
       </main>
 
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[625px] bg-background/80 backdrop-blur-lg border-primary/20">
+        <DialogContent className="sm:max-w-[625px]">
           <DialogHeader>
-            <DialogTitle className="text-primary" style={{ textShadow: '0 0 8px hsl(var(--primary))' }}>{editingSubscription ? "Edit" : "Add"} Subscription</DialogTitle>
+            <DialogTitle>{editingSubscription ? "Edit" : "Add"} Subscription</DialogTitle>
             <DialogDescription>
               {editingSubscription ? "Update the details of your subscription." : "Enter the details of your new subscription."}
             </DialogDescription>
