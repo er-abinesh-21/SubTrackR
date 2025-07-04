@@ -33,10 +33,10 @@ const Login = () => {
             variables: {
               default: {
                 colors: {
-                  brand: 'hsl(var(--neon-cyan))',
-                  brandAccent: 'hsl(180, 100%, 45%)',
+                  brand: 'hsl(var(--neon-pink))',
+                  brandAccent: 'hsl(337, 92%, 50%)',
                   brandButtonText: 'hsl(var(--background))',
-                  inputBorderFocus: 'hsl(var(--neon-cyan))',
+                  inputBorderFocus: 'hsl(var(--neon-pink))',
                 },
               },
             },

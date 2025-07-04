@@ -33,7 +33,7 @@
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
-    --neon-cyan: 180 100% 50%;
+    --neon-pink: 337 92% 55%;
   }
 
   .dark {
@@ -63,7 +63,7 @@
  
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 180 100% 50%;
+    --ring: 337 92% 55%;
   }
 }
 
@@ -77,7 +77,7 @@
   }
 
   .dark body {
-    @apply bg-[linear-gradient(-45deg,hsl(222.2,84%,4.9%),hsl(217.2,32.6%,12%),hsl(180,60%,15%),hsl(222.2,84%,4.9%))] 
+    @apply bg-[linear-gradient(-45deg,hsl(222.2,84%,4.9%),hsl(217.2,32.6%,12%),hsl(337,60%,15%),hsl(222.2,84%,4.9%))] 
            [background-size:400%_400%] 
            animate-gradient;
   }
@@ -91,14 +91,14 @@
 
 @layer utilities {
   .text-neon {
-    color: hsl(var(--neon-cyan));
-    text-shadow: 0 0 5px hsl(var(--neon-cyan) / 0.8), 0 0 10px hsl(var(--neon-cyan) / 0.5);
+    color: hsl(var(--neon-pink));
+    text-shadow: 0 0 5px hsl(var(--neon-pink) / 0.8), 0 0 10px hsl(var(--neon-pink) / 0.5);
   }
   .card-neon-shadow {
-    box-shadow: 0 0 15px hsl(var(--neon-cyan) / 0.2), 0 0 5px hsl(var(--neon-cyan) / 0.1);
+    box-shadow: 0 0 15px hsl(var(--neon-pink) / 0.2), 0 0 5px hsl(var(--neon-pink) / 0.1);
   }
   .btn-neon {
-    box-shadow: 0 0 5px hsl(var(--neon-cyan) / 0.8), 0 0 10px hsl(var(--neon-cyan) / 0.5);
+    box-shadow: 0 0 5px hsl(var(--neon-pink) / 0.8), 0 0 10px hsl(var(--neon-pink) / 0.5);
   }
 
   /* Custom scrollbar for webkit browsers */
@@ -110,11 +110,11 @@
     background: hsl(var(--secondary));
   }
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--neon-cyan));
+    background: hsl(var(--neon-pink));
     border-radius: var(--radius);
-    box-shadow: 0 0 5px hsl(var(--neon-cyan) / 0.8);
+    box-shadow: 0 0 5px hsl(var(--neon-pink) / 0.8);
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--neon-cyan) / 0.8);
+    background: hsl(var(--neon-pink) / 0.8);
   }
 }
