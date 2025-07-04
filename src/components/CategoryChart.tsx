@@ -3,6 +3,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CardFooter
 } from "@/components/ui/card";
 import {
   ChartContainer,
@@ -20,13 +21,28 @@ interface CategoryChartProps {
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8", "#ff4d4d"];
 
+const getMostCommonCurrency = (subs: Subscription[]): string => {
+    if (subs.length === 0) return 'USD';
+    const counts: { [key: string]: number } = {};
+    subs.forEach(s => {
+        const currency = s.currency || 'USD';
+        counts[currency] = (counts[currency] || 0) + 1;
+    });
+    if (Object.keys(counts).length === 0) return 'USD';
+    return Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+};
+
 export function CategoryChart({ subscriptions }: CategoryChartProps) {
   const [view, setView] = useState<'monthly' | 'yearly'>('monthly');
+  
+  const allCurrencies = new Set(subscriptions.map(s => s.currency || 'USD'));
+  const primaryCurrency = getMostCommonCurrency(subscriptions);
+  const subscriptionsInPrimaryCurrency = subscriptions.filter(s => (s.currency || 'USD') === primaryCurrency);
 
   const chartData = useMemo(() => {
     const categoryCosts: { [key: string]: number } = {};
 
-    subscriptions.forEach((sub) => {
+    subscriptionsInPrimaryCurrency.forEach((sub) => {
       const category = sub.category || "Uncategorized";
       let cost = Number(sub.price);
 
@@ -48,7 +64,7 @@ export function CategoryChart({ subscriptions }: CategoryChartProps) {
       name,
       value: parseFloat(value.toFixed(2)),
     }));
-  }, [subscriptions, view]);
+  }, [subscriptionsInPrimaryCurrency, view]);
 
   const emptyState = (
     <div className="flex flex-col items-center justify-center text-center text-muted-foreground h-full">
@@ -88,7 +104,7 @@ export function CategoryChart({ subscriptions }: CategoryChartProps) {
             <PieChart>
               <Tooltip
                 cursor={false}
-                content={<ChartTooltipContent hideLabel formatter={(value) => `$${value}`} />}
+                content={<ChartTooltipContent hideLabel formatter={(value) => `${primaryCurrency} ${value}`} />}
               />
               <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} fill="#8884d8">
                 {chartData.map((entry, index) => (
@@ -100,6 +116,13 @@ export function CategoryChart({ subscriptions }: CategoryChartProps) {
           </ChartContainer>
         )}
       </CardContent>
+      {allCurrencies.size > 1 && chartData.length > 0 && (
+        <CardFooter>
+            <p className="text-xs text-muted-foreground text-center w-full">
+                Note: Chart is showing data for your primary currency ({primaryCurrency}).
+            </p>
+        </CardFooter>
+      )}
     </Card>
   );
 }

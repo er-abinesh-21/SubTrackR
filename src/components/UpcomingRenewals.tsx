@@ -4,6 +4,17 @@ import { Bell } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { SubscriptionIcon } from "./SubscriptionIcon";
 
+const formatCurrency = (amount: number, currency: string) => {
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency: currency || 'USD',
+    }).format(amount);
+  } catch (e) {
+    return `${(currency || 'USD').toUpperCase()} ${amount.toFixed(2)}`;
+  }
+};
+
 interface UpcomingRenewalsProps {
   subscriptions: Subscription[];
 }
@@ -45,7 +56,7 @@ export function UpcomingRenewals({ subscriptions }: UpcomingRenewalsProps) {
                     </p>
                   </div>
                 </div>
-                <p className="font-semibold">${Number(sub.price).toFixed(2)}</p>
+                <p className="font-semibold">{formatCurrency(sub.price, sub.currency)}</p>
               </li>
             ))}
           </ul>

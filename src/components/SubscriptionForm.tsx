@@ -30,9 +30,22 @@ import { format } from "date-fns";
 import { Subscription } from "@/types";
 import { useEffect } from "react";
 
+const CURRENCIES = [
+    { value: "USD", label: "USD - US Dollar" },
+    { value: "EUR", label: "EUR - Euro" },
+    { value: "GBP", label: "GBP - British Pound" },
+    { value: "JPY", label: "JPY - Japanese Yen" },
+    { value: "CAD", label: "CAD - Canadian Dollar" },
+    { value: "AUD", label: "AUD - Australian Dollar" },
+    { value: "CHF", label: "CHF - Swiss Franc" },
+    { value: "CNY", label: "CNY - Chinese Yuan" },
+    { value: "INR", label: "INR - Indian Rupee" },
+];
+
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   price: z.coerce.number().min(0, { message: "Price must be a positive number." }),
+  currency: z.string().default("USD"),
   category: z.string().optional(),
   billing_cycle: z.enum(["monthly", "yearly", "one-time"]),
   next_due_date: z.date({ required_error: "A due date is required." }),
@@ -52,6 +65,7 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
     defaultValues: {
       name: "",
       price: 0,
+      currency: "USD",
       category: "",
       billing_cycle: "monthly",
     },
@@ -62,6 +76,7 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
       form.reset({
         name: subscription.name,
         price: subscription.price,
+        currency: subscription.currency || "USD",
         category: subscription.category || "",
         billing_cycle: subscription.billing_cycle as "monthly" | "yearly" | "one-time",
         next_due_date: new Date(subscription.next_due_date),
@@ -70,6 +85,7 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
       form.reset({
         name: "",
         price: 0,
+        currency: "USD",
         category: "",
         billing_cycle: "monthly",
         next_due_date: undefined,
@@ -93,21 +109,44 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
             </FormItem>
           )}
         />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <FormField
             control={form.control}
             name="price"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="md:col-span-2">
                 <FormLabel>Price</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="e.g., 9.99" {...field} />
+                  <Input type="number" step="0.01" placeholder="e.g., 9.99" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
           <FormField
+            control={form.control}
+            name="currency"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Currency</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select currency" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {CURRENCIES.map(c => (
+                      <SelectItem key={c.value} value={c.value}>{c.label.split(' - ')[0]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <FormField
             control={form.control}
             name="category"
             render={({ field }) => (
@@ -120,7 +159,6 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
               </FormItem>
             )}
           />
-        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}

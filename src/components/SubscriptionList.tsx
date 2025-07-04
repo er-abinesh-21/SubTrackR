@@ -22,6 +22,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useState, useMemo } from "react";
 import { SubscriptionIcon } from "./SubscriptionIcon";
 
+const formatCurrency = (amount: number, currency: string) => {
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency: currency || 'USD',
+    }).format(amount);
+  } catch (e) {
+    return `${(currency || 'USD').toUpperCase()} ${amount.toFixed(2)}`;
+  }
+};
+
 interface SubscriptionListProps {
   subscriptions: Subscription[];
   onEdit: (subscription: Subscription) => void;
@@ -114,7 +125,7 @@ export function SubscriptionList({ subscriptions, onEdit, onDelete, onAdd }: Sub
                     </TableCell>
                     <TableCell className="font-medium">{sub.name}</TableCell>
                     <TableCell>{sub.category || "N/A"}</TableCell>
-                    <TableCell className="text-right">${Number(sub.price).toFixed(2)}</TableCell>
+                    <TableCell className="text-right">{formatCurrency(sub.price, sub.currency)}</TableCell>
                     <TableCell className="capitalize">{sub.billing_cycle.replace('_', '-')}</TableCell>
                     <TableCell>{format(new Date(sub.next_due_date), "MMM dd, yyyy")}</TableCell>
                     <TableCell className="text-right">
