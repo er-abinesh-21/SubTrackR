@@ -88,4 +88,21 @@
   .btn-neon {
     box-shadow: 0 0 5px hsl(var(--neon-cyan) / 0.8), 0 0 10px hsl(var(--neon-cyan) / 0.5);
   }
+
+  /* Custom scrollbar for webkit browsers */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--secondary));
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--neon-cyan));
+    border-radius: var(--radius);
+    box-shadow: 0 0 5px hsl(var(--neon-cyan) / 0.8);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--neon-cyan) / 0.8);
+  }
 }

@@ -124,7 +124,7 @@ const Dashboard = () => {
   if (isLoading && subscriptions.length === 0) {
     return (
       <div className="flex items-center justify-center" style={{ height: 'calc(100vh - 200px)'}}>
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="h-8 w-8 animate-spin text-neon" />
       </div>
     );
   }
@@ -166,7 +166,7 @@ const Dashboard = () => {
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="sm:max-w-[625px]">
           <DialogHeader>
-            <DialogTitle>{editingSubscription ? "Edit" : "Add"} Subscription</DialogTitle>
+            <DialogTitle className="text-neon">{editingSubscription ? "Edit" : "Add"} Subscription</DialogTitle>
             <DialogDescription>
               {editingSubscription ? "Update the details of your subscription." : "Enter the details of your new subscription."}
             </DialogDescription>

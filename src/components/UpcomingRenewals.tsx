@@ -40,7 +40,7 @@ export function UpcomingRenewals({ subscriptions }: UpcomingRenewalsProps) {
       <CardContent>
         {upcoming.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center text-muted-foreground py-10">
-            <Bell className="h-12 w-12 text-muted-foreground mb-4" />
+            <Bell className="h-12 w-12 text-neon mb-4" />
             <p>No upcoming renewals</p>
           </div>
         ) : (

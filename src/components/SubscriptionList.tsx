@@ -61,7 +61,7 @@ export function SubscriptionList({ subscriptions, onEdit, onDelete, onAdd }: Sub
     return (
       <Card className="card-neon-shadow">
         <CardContent className="text-center py-16 flex flex-col items-center">
-          <CreditCard className="h-16 w-16 text-muted-foreground mb-4" />
+          <CreditCard className="h-16 w-16 text-neon mb-4" />
           <h3 className="text-xl font-semibold">No subscriptions yet</h3>
           <p className="text-muted-foreground mt-2 mb-6 max-w-sm">
             Start tracking your subscriptions to get insights into your spending.
@@ -138,7 +138,7 @@ export function SubscriptionList({ subscriptions, onEdit, onDelete, onAdd }: Sub
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => onEdit(sub)}>
-                            <Edit className="mr-2 h-4 w-4" />
+                            <Edit className="mr-2 h-4 w-4 text-neon" />
                             <span>Edit</span>
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => onDelete(sub.id)} className="text-red-500 focus:text-red-500">
