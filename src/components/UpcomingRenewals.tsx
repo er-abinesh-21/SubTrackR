@@ -33,7 +33,7 @@ export function UpcomingRenewals({ subscriptions }: UpcomingRenewalsProps) {
     .slice(0, 5);
 
   return (
-    <Card className="h-full">
+    <Card className="h-full bg-card/50 backdrop-blur-lg border-primary/10">
       <CardHeader>
         <CardTitle>Upcoming Renewals</CardTitle>
       </CardHeader>

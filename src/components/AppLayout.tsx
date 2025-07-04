@@ -36,17 +36,17 @@ const AppLayout = () => {
 
   return (
     <div className="min-h-screen w-full">
-      <header className="sticky top-0 z-40 w-full border-b bg-background">
+      <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-lg">
         <div className="container mx-auto flex h-16 items-center px-4 sm:px-8">
           <div className="flex items-center gap-10">
             <Link to="/dashboard" className="flex items-center space-x-2">
-              <span className="inline-block font-bold text-lg">SubTrackR</span>
+              <span className="inline-block font-bold text-lg text-primary drop-shadow-[0_0_5px_hsl(var(--primary))]">SubTrackR</span>
             </Link>
             <nav className="hidden gap-6 md:flex">
               <Link
                 to="/dashboard"
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  location.pathname === "/dashboard" ? "text-primary" : "text-muted-foreground"
+                className={`text-sm font-medium transition-colors hover:text-primary hover:drop-shadow-[0_0_5px_hsl(var(--primary))] ${
+                  location.pathname === "/dashboard" ? "text-primary drop-shadow-[0_0_5px_hsl(var(--primary))]" : "text-muted-foreground"
                 }`}
               >
                 Dashboard
@@ -57,12 +57,12 @@ const AppLayout = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                  <Avatar className="h-9 w-9">
-                    <AvatarFallback>{userInitials}</AvatarFallback>
+                  <Avatar className="h-9 w-9 border-2 border-primary/50">
+                    <AvatarFallback className="bg-transparent">{userInitials}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuContent className="w-56 bg-background/80 backdrop-blur-lg border-primary/20" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">My Account</p>

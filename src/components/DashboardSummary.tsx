@@ -33,17 +33,18 @@ interface StatCardProps {
   title: string;
   value: string | number;
   icon: React.ElementType;
+  iconColor: string;
 }
 
-const StatCard = ({ title, value, icon: Icon }: StatCardProps) => (
-  <Card>
+const StatCard = ({ title, value, icon: Icon, iconColor }: StatCardProps) => (
+  <Card className="bg-card/50 backdrop-blur-lg border-primary/10">
     <CardContent className="p-4 flex items-center justify-between">
       <div>
         <p className="text-sm text-muted-foreground">{title}</p>
         <p className="text-2xl font-bold">{value}</p>
       </div>
-      <div className="p-3 rounded-md bg-secondary">
-        <Icon className="h-5 w-5 text-secondary-foreground" />
+      <div className={`p-3 rounded-md ${iconColor}`}>
+        <Icon className="h-5 w-5 text-background" />
       </div>
     </CardContent>
   </Card>
@@ -83,21 +84,25 @@ export function DashboardSummary({ subscriptions }: DashboardSummaryProps) {
           title="Monthly Cost" 
           value={formatCurrency(monthlyTotal, primaryCurrency)} 
           icon={Calendar} 
+          iconColor="bg-neon-cyan shadow-lg shadow-neon-cyan/30"
         />
         <StatCard 
           title="Yearly Cost" 
           value={formatCurrency(totalYearlyCost, primaryCurrency)} 
           icon={TrendingUp} 
+          iconColor="bg-neon-green shadow-lg shadow-neon-green/30"
         />
         <StatCard 
           title="Active Subscriptions" 
           value={activeSubscriptions.length} 
           icon={CreditCard} 
+          iconColor="bg-neon-magenta shadow-lg shadow-neon-magenta/30"
         />
         <StatCard 
           title="Due This Week" 
           value={dueThisWeekCount} 
           icon={Bell} 
+          iconColor="bg-neon-yellow shadow-lg shadow-neon-yellow/30"
         />
       </div>
       {allCurrencies.size > 1 && (

@@ -19,7 +19,7 @@ interface CategoryChartProps {
   subscriptions: Subscription[];
 }
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8", "#ff4d4d"];
+const COLORS = ['#00FFFF', '#FF00FF', '#39FF14', '#A020F0', '#FFFF33'];
 
 const getMostCommonCurrency = (subs: Subscription[]): string => {
     if (subs.length === 0) return 'USD';
@@ -74,7 +74,7 @@ export function CategoryChart({ subscriptions }: CategoryChartProps) {
   );
 
   return (
-    <Card className="flex flex-col h-full">
+    <Card className="flex flex-col h-full bg-card/50 backdrop-blur-lg border-primary/10">
       <CardHeader className="flex flex-row items-center justify-between pb-4">
         <CardTitle>Category Breakdown</CardTitle>
         <div className="flex items-center gap-1 bg-muted p-1 rounded-md">
@@ -104,11 +104,15 @@ export function CategoryChart({ subscriptions }: CategoryChartProps) {
             <PieChart>
               <Tooltip
                 cursor={false}
-                content={<ChartTooltipContent hideLabel formatter={(value) => `${primaryCurrency} ${value}`} />}
+                content={<ChartTooltipContent 
+                  hideLabel 
+                  formatter={(value) => `${primaryCurrency} ${value}`} 
+                  className="bg-background/80 backdrop-blur-lg border-primary/20"
+                />}
               />
-              <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} fill="#8884d8">
+              <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} innerRadius={60} paddingAngle={5} fill="#8884d8">
                 {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} className="drop-shadow-[0_0_5px_currentColor]"/>
                 ))}
               </Pie>
               <Legend />

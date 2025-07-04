@@ -138,7 +138,7 @@ const Dashboard = () => {
             Track your subscriptions and manage your spending.
           </p>
         </div>
-        <Button onClick={() => handleOpenForm()}>
+        <Button onClick={() => handleOpenForm()} className="shadow-lg shadow-primary/30">
           <PlusCircle className="mr-2 h-4 w-4" /> Add Subscription
         </Button>
       </div>
@@ -164,7 +164,7 @@ const Dashboard = () => {
       </main>
 
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[625px]">
+        <DialogContent className="sm:max-w-[625px] bg-background/80 backdrop-blur-lg border-primary/20">
           <DialogHeader>
             <DialogTitle>{editingSubscription ? "Edit" : "Add"} Subscription</DialogTitle>
             <DialogDescription>

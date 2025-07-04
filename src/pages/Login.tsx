@@ -19,9 +19,9 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="w-full max-w-md p-8 space-y-8">
+      <div className="w-full max-w-md p-8 space-y-8 bg-background/50 backdrop-blur-lg border border-primary/20 rounded-lg">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-primary drop-shadow-[0_0_5px_hsl(var(--primary))]">
             Welcome to SubTrackR
           </h2>
           <p className="text-center text-muted-foreground mt-2">Sign in to continue</p>

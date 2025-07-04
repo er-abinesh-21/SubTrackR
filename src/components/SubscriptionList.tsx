@@ -59,39 +59,39 @@ export function SubscriptionList({ subscriptions, onEdit, onDelete, onAdd }: Sub
 
   if (subscriptions.length === 0) {
     return (
-      <Card>
+      <Card className="bg-card/50 backdrop-blur-lg border-primary/10">
         <CardContent className="text-center py-16 flex flex-col items-center">
           <CreditCard className="h-16 w-16 text-muted-foreground mb-4" />
           <h3 className="text-xl font-semibold">No subscriptions yet</h3>
           <p className="text-muted-foreground mt-2 mb-6 max-w-sm">
             Start tracking your subscriptions to get insights into your spending.
           </p>
-          <Button onClick={onAdd}>Add Your First Subscription</Button>
+          <Button onClick={onAdd} className="shadow-lg shadow-primary/30">Add Your First Subscription</Button>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card>
+    <Card className="bg-card/50 backdrop-blur-lg border-primary/10">
       <CardHeader>
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <CardTitle>All Subscriptions</CardTitle>
+          <CardTitle className="text-primary drop-shadow-[0_0_5px_hsl(var(--primary))]">All Subscriptions</CardTitle>
           <div className="flex items-center gap-2 w-full md:w-auto">
             <div className="relative w-full md:w-64">
               <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
               <Input 
                 placeholder="Search subscriptions..." 
-                className="pl-8"
+                className="pl-8 bg-input/80 focus:ring-primary focus:ring-offset-0"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-full md:w-[180px]">
+              <SelectTrigger className="w-full md:w-[180px] bg-input/80">
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background/80 backdrop-blur-lg border-primary/20">
                 {categories.map(cat => (
                   <SelectItem key={cat} value={cat}>
                     {cat === 'all' ? 'All Categories' : cat}
@@ -106,7 +106,7 @@ export function SubscriptionList({ subscriptions, onEdit, onDelete, onAdd }: Sub
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="border-primary/10">
                 <TableHead className="w-[60px]"></TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Category</TableHead>
@@ -119,7 +119,7 @@ export function SubscriptionList({ subscriptions, onEdit, onDelete, onAdd }: Sub
             <TableBody>
               {filteredSubscriptions.length > 0 ? (
                 filteredSubscriptions.map((sub) => (
-                  <TableRow key={sub.id}>
+                  <TableRow key={sub.id} className="border-primary/10">
                     <TableCell>
                       <SubscriptionIcon name={sub.name} />
                     </TableCell>
@@ -136,7 +136,7 @@ export function SubscriptionList({ subscriptions, onEdit, onDelete, onAdd }: Sub
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" className="bg-background/80 backdrop-blur-lg border-primary/20">
                           <DropdownMenuItem onClick={() => onEdit(sub)}>
                             <Edit className="mr-2 h-4 w-4" />
                             <span>Edit</span>
