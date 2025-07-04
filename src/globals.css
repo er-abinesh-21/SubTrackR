@@ -33,6 +33,7 @@
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
+    --neon-cyan: 180 100% 50%;
   }
 
   .dark {
@@ -73,5 +74,12 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .text-neon {
+    color: hsl(var(--neon-cyan));
+    text-shadow: 0 0 5px hsl(var(--neon-cyan) / 0.8), 0 0 10px hsl(var(--neon-cyan) / 0.5);
   }
 }

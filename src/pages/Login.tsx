@@ -21,7 +21,7 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center">
       <div className="w-full max-w-md p-8 space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-neon">
             Welcome to SubTrackR
           </h2>
           <p className="text-center text-muted-foreground mt-2">Sign in to continue</p>

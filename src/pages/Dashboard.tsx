@@ -133,7 +133,7 @@ const Dashboard = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Dashboard</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-neon">Dashboard</h1>
           <p className="text-muted-foreground">
             Track your subscriptions and manage your spending.
           </p>

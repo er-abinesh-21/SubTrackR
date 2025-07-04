@@ -35,7 +35,7 @@ export function UpcomingRenewals({ subscriptions }: UpcomingRenewalsProps) {
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle>Upcoming Renewals</CardTitle>
+        <CardTitle className="text-neon">Upcoming Renewals</CardTitle>
       </CardHeader>
       <CardContent>
         {upcoming.length === 0 ? (

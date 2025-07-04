@@ -76,7 +76,7 @@ export function SubscriptionList({ subscriptions, onEdit, onDelete, onAdd }: Sub
     <Card>
       <CardHeader>
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <CardTitle>All Subscriptions</CardTitle>
+          <CardTitle className="text-neon">All Subscriptions</CardTitle>
           <div className="flex items-center gap-2 w-full md:w-auto">
             <div className="relative w-full md:w-64">
               <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />

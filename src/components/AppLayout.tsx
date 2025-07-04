@@ -40,7 +40,7 @@ const AppLayout = () => {
         <div className="container mx-auto flex h-16 items-center px-4 sm:px-8">
           <div className="flex items-center gap-10">
             <Link to="/dashboard" className="flex items-center space-x-2">
-              <span className="inline-block font-bold text-lg">SubTrackR</span>
+              <span className="inline-block font-bold text-lg text-neon">SubTrackR</span>
             </Link>
             <nav className="hidden gap-6 md:flex">
               <Link

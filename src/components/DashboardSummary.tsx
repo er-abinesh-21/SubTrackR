@@ -40,7 +40,7 @@ const StatCard = ({ title, value, icon: Icon }: StatCardProps) => (
     <CardContent className="p-4 flex items-center justify-between">
       <div>
         <p className="text-sm text-muted-foreground">{title}</p>
-        <p className="text-2xl font-bold">{value}</p>
+        <p className="text-2xl font-bold text-neon">{value}</p>
       </div>
       <div className="p-3 rounded-md bg-secondary">
         <Icon className="h-5 w-5 text-secondary-foreground" />

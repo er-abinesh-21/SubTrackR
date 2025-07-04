@@ -76,7 +76,7 @@ export function CategoryChart({ subscriptions }: CategoryChartProps) {
   return (
     <Card className="flex flex-col h-full">
       <CardHeader className="flex flex-row items-center justify-between pb-4">
-        <CardTitle>Category Breakdown</CardTitle>
+        <CardTitle className="text-neon">Category Breakdown</CardTitle>
         <div className="flex items-center gap-1 bg-muted p-1 rounded-md">
           <Button 
             variant={view === 'monthly' ? 'secondary' : 'ghost'} 
