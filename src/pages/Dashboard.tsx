@@ -18,6 +18,7 @@ import { Loader2, PlusCircle } from "lucide-react";
 import { formatISO } from "date-fns";
 import { DashboardSummary } from "@/components/DashboardSummary";
 import { CategoryChart } from "@/components/CategoryChart";
+import { UpcomingRenewals } from "@/components/UpcomingRenewals";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -70,11 +71,6 @@ const Dashboard = () => {
     setIsLoading(false);
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/login");
-  };
-
   const handleOpenForm = (subscription: Subscription | null = null) => {
     setEditingSubscription(subscription);
     setIsFormOpen(true);
@@ -125,46 +121,46 @@ const Dashboard = () => {
     }
   };
 
-  if (!user) {
+  if (isLoading && subscriptions.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center" style={{ height: 'calc(100vh - 200px)'}}>
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="p-4 md:p-8 space-y-6">
-      <header className="flex flex-wrap gap-4 justify-between items-center">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <div className="flex items-center gap-4">
-          <Button onClick={() => handleOpenForm()}>
-            <PlusCircle className="mr-2 h-4 w-4" /> Add Subscription
-          </Button>
-          <Button variant="outline" onClick={handleLogout}>Logout</Button>
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground">
+            Track your subscriptions and manage your spending.
+          </p>
         </div>
-      </header>
+        <Button onClick={() => handleOpenForm()}>
+          <PlusCircle className="mr-2 h-4 w-4" /> Add Subscription
+        </Button>
+      </div>
 
       <main className="space-y-6">
-        {isLoading ? (
-          <div className="flex justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin" />
+        <DashboardSummary subscriptions={subscriptions} />
+
+        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-5">
+          <div className="lg:col-span-3">
+            <CategoryChart subscriptions={subscriptions} />
           </div>
-        ) : (
-          <>
-            <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
-              <div className="lg:col-span-2">
-                <DashboardSummary subscriptions={subscriptions} />
-              </div>
-              <CategoryChart subscriptions={subscriptions} />
-            </div>
-            <SubscriptionList
-              subscriptions={subscriptions}
-              onEdit={handleOpenForm}
-              onDelete={handleDeleteSubscription}
-            />
-          </>
-        )}
+          <div className="lg:col-span-2">
+            <UpcomingRenewals subscriptions={subscriptions} />
+          </div>
+        </div>
+
+        <SubscriptionList
+          subscriptions={subscriptions}
+          onEdit={handleOpenForm}
+          onDelete={handleDeleteSubscription}
+          onAdd={() => handleOpenForm()}
+        />
       </main>
 
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
