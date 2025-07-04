@@ -82,7 +82,7 @@ export function CategoryChart({ subscriptions }: CategoryChartProps) {
             variant={view === 'monthly' ? 'secondary' : 'ghost'} 
             size="sm" 
             onClick={() => setView('monthly')}
-            className="h-7 px-3"
+            className={`h-7 px-3 ${view === 'monthly' ? 'text-neon' : ''}`}
           >
             Monthly
           </Button>
@@ -90,7 +90,7 @@ export function CategoryChart({ subscriptions }: CategoryChartProps) {
             variant={view === 'yearly' ? 'secondary' : 'ghost'} 
             size="sm" 
             onClick={() => setView('yearly')}
-            className="h-7 px-3"
+            className={`h-7 px-3 ${view === 'yearly' ? 'text-neon' : ''}`}
           >
             Yearly
           </Button>

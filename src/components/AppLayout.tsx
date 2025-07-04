@@ -46,7 +46,7 @@ const AppLayout = () => {
               <Link
                 to="/dashboard"
                 className={`text-sm font-medium transition-colors hover:text-primary ${
-                  location.pathname === "/dashboard" ? "text-primary" : "text-muted-foreground"
+                  location.pathname === "/dashboard" ? "text-neon" : "text-muted-foreground"
                 }`}
               >
                 Dashboard

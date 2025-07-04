@@ -44,7 +44,7 @@ const StatCard = ({ title, value, icon: Icon, isCurrency }: StatCardProps) => (
         <p className={`text-2xl font-bold ${!isCurrency ? 'text-neon' : ''}`}>{value}</p>
       </div>
       <div className="p-3 rounded-md bg-secondary">
-        <Icon className="h-5 w-5 text-secondary-foreground" />
+        <Icon className="h-5 w-5 text-neon" />
       </div>
     </CardContent>
   </Card>
