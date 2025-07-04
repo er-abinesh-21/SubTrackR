@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import type { Session, User } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 import { Subscription } from "@/types";
 import { SubscriptionList } from "@/components/SubscriptionList";
 import { SubscriptionForm, SubscriptionFormValues } from "@/components/SubscriptionForm";
@@ -16,6 +16,8 @@ import {
 import { showSuccess, showError } from "@/utils/toast";
 import { Loader2, PlusCircle } from "lucide-react";
 import { formatISO } from "date-fns";
+import { DashboardSummary } from "@/components/DashboardSummary";
+import { CategoryChart } from "@/components/CategoryChart";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -86,18 +88,17 @@ const Dashboard = () => {
       ...formData,
       user_id: user.id,
       next_due_date: formatISO(formData.next_due_date),
+      price: formData.price
     };
 
     let error;
     if (editingSubscription) {
-      // Update
       const { error: updateError } = await supabase
         .from("subscriptions")
         .update(subscriptionData)
         .eq("id", editingSubscription.id);
       error = updateError;
     } else {
-      // Create
       const { error: insertError } = await supabase
         .from("subscriptions")
         .insert(subscriptionData);
@@ -133,8 +134,8 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="p-4 md:p-8">
-      <header className="flex flex-wrap gap-4 justify-between items-center mb-6">
+    <div className="p-4 md:p-8 space-y-6">
+      <header className="flex flex-wrap gap-4 justify-between items-center">
         <h1 className="text-3xl font-bold">Dashboard</h1>
         <div className="flex items-center gap-4">
           <Button onClick={() => handleOpenForm()}>
@@ -144,17 +145,25 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <main>
+      <main className="space-y-6">
         {isLoading ? (
           <div className="flex justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin" />
           </div>
         ) : (
-          <SubscriptionList
-            subscriptions={subscriptions}
-            onEdit={handleOpenForm}
-            onDelete={handleDeleteSubscription}
-          />
+          <>
+            <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
+              <div className="lg:col-span-2">
+                <DashboardSummary subscriptions={subscriptions} />
+              </div>
+              <CategoryChart subscriptions={subscriptions} />
+            </div>
+            <SubscriptionList
+              subscriptions={subscriptions}
+              onEdit={handleOpenForm}
+              onDelete={handleDeleteSubscription}
+            />
+          </>
         )}
       </main>
 
