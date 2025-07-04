@@ -81,6 +81,12 @@
            [background-size:400%_400%] 
            animate-gradient;
   }
+
+  /* Add neon border color to focused inputs */
+  .dark input:focus-visible,
+  .dark textarea:focus-visible {
+    border-color: hsl(var(--ring)) !important;
+  }
 }
 
 @layer utilities {

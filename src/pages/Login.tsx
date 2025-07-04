@@ -36,6 +36,7 @@ const Login = () => {
                   brand: 'hsl(var(--neon-cyan))',
                   brandAccent: 'hsl(180, 100%, 45%)',
                   brandButtonText: 'hsl(var(--background))',
+                  inputBorderFocus: 'hsl(var(--neon-cyan))',
                 },
               },
             },
