@@ -75,6 +75,12 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  .dark body {
+    @apply bg-[linear-gradient(-45deg,hsl(222.2,84%,4.9%),hsl(217.2,32.6%,12%),hsl(180,60%,15%),hsl(222.2,84%,4.9%))] 
+           [background-size:400%_400%] 
+           animate-gradient;
+  }
 }
 
 @layer utilities {
