@@ -30,6 +30,15 @@ const Login = () => {
           supabaseClient={supabase}
           appearance={{
             theme: ThemeSupa,
+            variables: {
+              default: {
+                colors: {
+                  brand: 'hsl(var(--neon-cyan))',
+                  brandAccent: 'hsl(180, 100%, 45%)',
+                  brandButtonText: 'hsl(var(--background))',
+                },
+              },
+            },
             className: {
               button: 'btn-neon',
             },
