@@ -20,6 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState, useMemo } from "react";
+import { SubscriptionIcon } from "./SubscriptionIcon";
 
 interface SubscriptionListProps {
   subscriptions: Subscription[];
@@ -95,6 +96,7 @@ export function SubscriptionList({ subscriptions, onEdit, onDelete, onAdd }: Sub
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[60px]"></TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead className="text-right">Price</TableHead>
@@ -107,6 +109,9 @@ export function SubscriptionList({ subscriptions, onEdit, onDelete, onAdd }: Sub
               {filteredSubscriptions.length > 0 ? (
                 filteredSubscriptions.map((sub) => (
                   <TableRow key={sub.id}>
+                    <TableCell>
+                      <SubscriptionIcon name={sub.name} />
+                    </TableCell>
                     <TableCell className="font-medium">{sub.name}</TableCell>
                     <TableCell>{sub.category || "N/A"}</TableCell>
                     <TableCell className="text-right">${Number(sub.price).toFixed(2)}</TableCell>
@@ -136,7 +141,7 @@ export function SubscriptionList({ subscriptions, onEdit, onDelete, onAdd }: Sub
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
+                  <TableCell colSpan={7} className="h-24 text-center">
                     No results found.
                   </TableCell>
                 </TableRow>
