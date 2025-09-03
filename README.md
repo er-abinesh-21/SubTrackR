@@ -8,6 +8,8 @@
   <img src="https://img.shields.io/badge/Tailwind_CSS-3.4.15-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind" />
 </div>
 
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/7a31ff2c-af73-48a1-ba97-cef2b8f6c15a" />
+
 <div align="center">
   <h3>🚀 Track, Manage, and Optimize Your Subscriptions</h3>
   <p>A modern web application to help you stay on top of your recurring subscriptions and manage your spending effectively.</p>
@@ -211,6 +213,12 @@ npm run type-check   # Run TypeScript compiler check
 
 ## 🌟 Key Components
 
+### Login & Sign Up Page
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/309826f2-2f45-4a57-9160-d806c9373eb3" />
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/57fa8ff2-41a3-48e9-8f51-d9db931b98fe" />
+
 ### Dashboard
 - Central hub showing all subscription metrics
 - Interactive charts for spending analysis
@@ -261,7 +269,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📧 Contact
 
-Your Name - [@Abinesh. B](https://github.com/er-abinesh-21)
+Your Name - [Abinesh.B](https://github.com/er-abinesh-21)
 Project Link: [https://github.com//SubTrackR](https://github.com/er-abinesh-21/SubTrackR)
 
 ---
@@ -270,3 +278,4 @@ Project Link: [https://github.com//SubTrackR](https://github.com/er-abinesh-21/S
   <p>Built with ❤️ using React, TypeScript, and Supabase</p>
   <p>⭐ Star this repo if you find it helpful!</p>
 </div>
+
