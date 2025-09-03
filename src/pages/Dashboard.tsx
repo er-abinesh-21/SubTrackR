@@ -30,24 +30,20 @@ const Dashboard = () => {
   const [editingSubscription, setEditingSubscription] = useState<Subscription | null>(null);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
-        navigate("/login");
-      } else {
+    // Get current user session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
         setUser(session.user);
       }
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        navigate("/login");
-      } else {
-        setUser(session.user);
-      }
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
     if (user) {

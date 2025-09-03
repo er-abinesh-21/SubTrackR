@@ -1,0 +1,133 @@
+name: Supabase Health Monitor
+
+on:
+  schedule:
+    # Run every 12 hours for health monitoring
+    - cron: '0 0,12 * * *'
+  
+  # Allow manual trigger
+  workflow_dispatch:
+  
+  # Run on push to main branch
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/**'
+      - '.github/workflows/supabase-monitor.yml'
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Create Health Check Script
+        run: |
+          cat > health-check.js << 'EOF'
+          const https = require('https');
+          const url = require('url');
+          
+          const SUPABASE_URL = process.env.SUPABASE_URL;
+          const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+          
+          async function makeRequest(endpoint, options = {}) {
+            return new Promise((resolve, reject) => {
+              const parsedUrl = url.parse(`${SUPABASE_URL}${endpoint}`);
+              const reqOptions = {
+                hostname: parsedUrl.hostname,
+                path: parsedUrl.path,
+                method: options.method || 'GET',
+                headers: {
+                  'apikey': SUPABASE_ANON_KEY,
+                  'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                  ...options.headers
+                }
+              };
+              
+              const req = https.request(reqOptions, (res) => {
+                let data = '';
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => resolve({ status: res.statusCode, data }));
+              });
+              
+              req.on('error', reject);
+              req.end();
+            });
+          }
+          
+          async function runHealthChecks() {
+            console.log('🏥 Starting Supabase Health Checks...\n');
+            
+            const checks = [
+              {
+                name: 'Database Connection',
+                endpoint: '/rest/v1/',
+                expectedStatus: [200]
+              },
+              {
+                name: 'Auth Service',
+                endpoint: '/auth/v1/health',
+                expectedStatus: [200]
+              },
+              {
+                name: 'Storage Service',
+                endpoint: '/storage/v1/',
+                expectedStatus: [200, 400]
+              },
+              {
+                name: 'Realtime Service',
+                endpoint: '/realtime/v1/',
+                expectedStatus: [200, 404]
+              }
+            ];
+            
+            let allPassed = true;
+            
+            for (const check of checks) {
+              try {
+                const result = await makeRequest(check.endpoint);
+                const passed = check.expectedStatus.includes(result.status);
+                
+                if (passed) {
+                  console.log(`✅ ${check.name}: OK (HTTP ${result.status})`);
+                } else {
+                  console.log(`❌ ${check.name}: FAILED (HTTP ${result.status})`);
+                  allPassed = false;
+                }
+              } catch (error) {
+                console.log(`❌ ${check.name}: ERROR - ${error.message}`);
+                allPassed = false;
+              }
+            }
+            
+            console.log('\n📊 Summary:');
+            console.log(`Status: ${allPassed ? '✅ All checks passed' : '⚠️ Some checks failed'}`);
+            console.log(`Timestamp: ${new Date().toISOString()}`);
+            
+            process.exit(allPassed ? 0 : 1);
+          }
+          
+          runHealthChecks();
+          EOF
+      
+      - name: Run Health Checks
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: node health-check.js
+        continue-on-error: true
+      
+      - name: Send Notification on Failure
+        if: failure()
+        run: |
+          echo "⚠️ Supabase health check failed!"
+          echo "Check the workflow logs for details."
+          # You can add additional notification logic here
+          # e.g., send email, Slack notification, etc.

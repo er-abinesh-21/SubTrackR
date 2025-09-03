@@ -1,0 +1,70 @@
+name: Supabase Keep Alive
+
+on:
+  schedule:
+    # Run every 6 hours to keep Supabase active
+    # Cron format: minute hour day month day-of-week
+    # This runs at 00:00, 06:00, 12:00, 18:00 UTC every day
+    - cron: '0 */6 * * *'
+  
+  # Allow manual trigger from GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Keep Supabase Database Active
+        run: |
+          echo "🔄 Pinging Supabase to keep it active..."
+          
+          # Ping the Supabase database endpoint
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X GET \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/subscriptions?select=id&limit=1")
+          
+          if [ $response -eq 200 ] || [ $response -eq 204 ]; then
+            echo "✅ Database ping successful (HTTP $response)"
+          else
+            echo "⚠️ Database ping returned HTTP $response"
+          fi
+      
+      - name: Keep Edge Functions Active
+        run: |
+          echo "🔄 Pinging Edge Functions..."
+          
+          # Ping the send-reminders edge function (health check)
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X OPTIONS \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/send-reminders")
+          
+          if [ $response -eq 200 ] || [ $response -eq 204 ]; then
+            echo "✅ Edge function ping successful (HTTP $response)"
+          else
+            echo "⚠️ Edge function ping returned HTTP $response"
+          fi
+      
+      - name: Test Auth Endpoint
+        run: |
+          echo "🔄 Testing Auth endpoint..."
+          
+          # Test the auth health endpoint
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${{ secrets.SUPABASE_URL }}/auth/v1/health")
+          
+          if [ $response -eq 200 ]; then
+            echo "✅ Auth endpoint is healthy"
+          else
+            echo "⚠️ Auth endpoint returned HTTP $response"
+          fi
+      
+      - name: Summary
+        run: |
+          echo "📊 Keep-alive job completed at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "Next run scheduled in 6 hours"
