@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import App from "../App";
 
 const mockUser = {
@@ -93,7 +93,8 @@ describe("Routing and redirects", () => {
       expect(state.fetchSubscriptions).toHaveBeenCalledWith(mockUser.uid);
       expect(screen.getByText("No subscriptions yet")).toBeInTheDocument();
       // With nothing tracked, amounts use the default currency (INR).
-      expect(screen.getByText("₹0.00")).toBeInTheDocument();
+      const summary = screen.getByRole("region", { name: "Spending summary" });
+      expect(within(summary).getAllByText("₹0.00").length).toBeGreaterThanOrEqual(2); // monthly and yearly
     });
 
     it("shows a retryable error when subscriptions fail to load", async () => {
