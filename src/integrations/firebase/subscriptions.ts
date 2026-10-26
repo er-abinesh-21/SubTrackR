@@ -26,10 +26,15 @@ export async function fetchSubscriptions(userId: string): Promise<Subscription[]
   );
 
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as Subscription[];
+  return snapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      ...data,
+      id: doc.id,
+      // Firestore stores a Timestamp; the app type is an ISO string.
+      created_at: data.created_at instanceof Timestamp ? data.created_at.toDate().toISOString() : data.created_at,
+    };
+  }) as Subscription[];
 }
 
 /**

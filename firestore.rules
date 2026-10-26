@@ -2,8 +2,18 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /subscriptions/{subscriptionId} {
-      allow read, write: if request.auth != null && request.auth.uid == resource.data.user_id;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.user_id;
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      allow read, delete: if isSignedIn() && request.auth.uid == resource.data.user_id;
+
+      allow create: if isSignedIn() && request.auth.uid == request.resource.data.user_id;
+
+      // Owners may edit their documents but can never reassign them to another user.
+      allow update: if isSignedIn()
+                    && request.auth.uid == resource.data.user_id
+                    && request.resource.data.user_id == resource.data.user_id;
     }
   }
 }

@@ -7,48 +7,58 @@ import {
   Newspaper,
   ShoppingBag,
   Zap,
-  CreditCard,
 } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
 interface SubscriptionIconProps {
   name: string;
+  size?: "sm" | "md";
+  className?: string;
 }
 
-const getIconForSubscription = (name: string) => {
-  const lowerCaseName = name.toLowerCase();
+// Known services get a glyph; everything else gets initials. Tiles stay in the theme's
+// own colours so a long list reads as one family rather than a rainbow.
+const ICON_MAPPINGS: { keywords: string[]; icon: React.ElementType }[] = [
+  { keywords: ["netflix", "hulu", "hbo", "disney", "apple tv", "plex", "crunchyroll"], icon: Tv },
+  { keywords: ["spotify", "apple music", "tidal", "pandora", "soundcloud"], icon: Music },
+  { keywords: ["youtube"], icon: Youtube },
+  { keywords: ["icloud", "dropbox", "google drive", "onedrive"], icon: Cloud },
+  { keywords: ["xbox", "playstation", "nintendo", "steam"], icon: Gamepad2 },
+  { keywords: ["new york times", "washington post", "wsj", "medium"], icon: Newspaper },
+  { keywords: ["amazon prime", "walmart+"], icon: ShoppingBag },
+  { keywords: ["adobe", "figma", "canva", "notion", "office 365"], icon: Zap },
+];
 
-  const iconMappings: { keywords: string[]; icon: React.ElementType; color: string }[] = [
-    { keywords: ["netflix", "hulu", "hbo", "disney", "apple tv", "plex", "crunchyroll"], icon: Tv, color: "bg-red-500" },
-    { keywords: ["spotify", "apple music", "tidal", "pandora", "soundcloud"], icon: Music, color: "bg-green-500" },
-    { keywords: ["youtube"], icon: Youtube, color: "bg-red-600" },
-    { keywords: ["icloud", "dropbox", "google drive", "one", "onedrive"], icon: Cloud, color: "bg-blue-500" },
-    { keywords: ["xbox", "playstation", "nintendo", "steam"], icon: Gamepad2, color: "bg-indigo-500" },
-    { keywords: ["new york times", "washington post", "wsj", "medium"], icon: Newspaper, color: "bg-gray-700" },
-    { keywords: ["amazon prime", "walmart+"], icon: ShoppingBag, color: "bg-yellow-500" },
-    { keywords: ["adobe", "figma", "canva", "notion", "office 365"], icon: Zap, color: "bg-purple-500" },
-  ];
-
-  for (const mapping of iconMappings) {
-    if (mapping.keywords.some(keyword => lowerCaseName.includes(keyword))) {
-      const Icon = mapping.icon;
-      return (
-        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${mapping.color}`}>
-          <Icon className="h-5 w-5 text-white" />
-        </div>
-      );
-    }
-  }
-
-  // Fallback to initials
-  const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-  return (
-    <Avatar className="h-10 w-10 rounded-lg">
-      <AvatarFallback className="rounded-lg bg-muted text-muted-foreground">{initials || <CreditCard />}</AvatarFallback>
-    </Avatar>
-  );
+const SIZES = {
+  sm: { box: "h-8 w-8 rounded-lg", icon: "h-4 w-4", text: "text-[0.7rem]" },
+  md: { box: "h-10 w-10 rounded-[11px]", icon: "h-[18px] w-[18px]", text: "text-sm" },
 };
 
-export function SubscriptionIcon({ name }: SubscriptionIconProps) {
-  return getIconForSubscription(name);
+export function SubscriptionIcon({ name, size = "md", className }: SubscriptionIconProps) {
+  const lowerCaseName = name.toLowerCase();
+  const match = ICON_MAPPINGS.find((m) => m.keywords.some((k) => lowerCaseName.includes(k)));
+  const s = SIZES[size];
+
+  const initials =
+    name
+      .split(" ")
+      .filter(Boolean)
+      .map((n) => n[0])
+      .join("")
+      .substring(0, 2)
+      .toUpperCase() || "?";
+
+  return (
+    <div
+      aria-hidden="true"
+      className={cn(
+        "flex shrink-0 items-center justify-center bg-secondary font-display font-semibold text-foreground ring-1 ring-inset ring-border",
+        s.box,
+        s.text,
+        className
+      )}
+    >
+      {match ? <match.icon className={s.icon} strokeWidth={1.75} /> : initials}
+    </div>
+  );
 }

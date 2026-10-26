@@ -22,7 +22,7 @@
 ### 📊 **Dashboard Analytics**
 - **Real-time spending overview** with total monthly and yearly costs
 - **Category-wise breakdown** with interactive charts
-- **Upcoming renewals** notification system
+- **Upcoming renewals** list showing the next five charges
 - **Active subscriptions counter** with quick stats
 
 ### 💼 **Subscription Management**
@@ -33,17 +33,17 @@
 - ✅ Search and filter subscriptions
 - ✅ Currency support for multiple regions
 
-### 🔔 **Smart Notifications**
-- Automated email reminders 7 days before renewal
-- Firebase Cloud Functions for serverless notifications
-- Customizable reminder preferences
+### 🔔 **Renewal Tracking**
+- Upcoming renewals list with recurring dates rolled forward automatically
+- "Due this week" counter on the dashboard
+- Pause and resume subscriptions without deleting them
 
-### 🎨 **Modern UI/UX**
-- Dark theme with neon pink accents
-- Responsive design for mobile and desktop
-- Smooth animations and transitions
-- Glassmorphism effects
-- Intuitive navigation
+### 🎨 **Design**
+- Noir, Cotton, Cherry Red and Maroon palette, set in Bricolage Grotesque and Instrument Sans
+- A 30-day renewal timeline that shows when each charge lands
+- Spending breakdown by category, monthly or yearly
+- Motion that respects `prefers-reduced-motion`
+- Responsive from phone to desktop
 
 ### 🔐 **Security & Authentication**
 - Secure authentication via Firebase Auth
@@ -85,17 +85,15 @@
 - **Firebase** - Backend as a Service
   - Cloud Firestore database
   - Firebase Authentication (Email/Password & Google)
-  - Real-time data sync
-  - Cloud Functions
 
 </td>
 <td>
 
 ### DevOps
-- **GitHub Actions** - CI/CD
+- **Vitest** - Unit and routing tests
 - **ESLint** - Code linting
 - **PostCSS** - CSS processing
-- **GitHub Workflows** - Automated tasks
+- **Testing Library** - Component testing
 
 </td>
 </tr>
@@ -105,7 +103,7 @@
 
 ### Prerequisites
 
-- Node.js 18+ and npm/pnpm
+- Node.js 18+ and npm
 - Firebase account (free tier works)
 - Git
 
@@ -120,8 +118,6 @@ cd SubTrackR
 2. **Install dependencies**
 ```bash
 npm install
-# or
-pnpm install
 ```
 
 3. **Set up environment variables**
@@ -144,35 +140,29 @@ VITE_FIREBASE_APP_ID=your_app_id
    1. Create a new Firebase project at [Firebase Console](https://console.firebase.google.com/)
    2. Enable **Authentication** → Sign-in method → Enable **Email/Password** and **Google**
    3. Create a **Cloud Firestore** database
-   4. Add the following Firestore security rules:
+   4. Deploy the security rules and the composite index the dashboard query needs (both are in this repo):
 
+```bash
+npm install -g firebase-tools
+firebase login
+firebase deploy --only firestore
 ```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /subscriptions/{subscriptionId} {
-      allow read, write: if request.auth != null
-                         && request.auth.uid == resource.data.user_id;
-      allow create: if request.auth != null
-                    && request.auth.uid == request.resource.data.user_id;
-    }
-  }
-}
-```
+
+   The index (`user_id` + `next_due_date`) takes a minute or two to build. Until it is ready the dashboard shows a "couldn't load your subscriptions" message.
 
 5. **Run the development server**
 ```bash
 npm run dev
 ```
 
-Visit `http://localhost:8080` to see the app running!
+Visit `http://localhost:8080` (Vite picks the next free port if 8080 is taken) to see the app running!
+
+No Firebase project yet? Run `npm run dev:demo` to explore the app with sample subscriptions. Any email and password signs in, and nothing is saved.
 
 ## 📁 Project Structure
 
 ```
 SubTrackR/
-├── .github/
-│   └── workflows/        # GitHub Actions workflows
 ├── public/               # Static assets
 ├── src/
 │   ├── components/       # React components
@@ -180,34 +170,29 @@ SubTrackR/
 │   │   └── ...          # Feature components
 │   ├── hooks/           # Custom React hooks
 │   ├── integrations/    # External service integrations
-│   ├── lib/             # Utility functions
+│   ├── lib/             # Utility functions and subscription cost/date logic
 │   ├── pages/           # Route pages
+│   ├── tests/           # Test setup and routing tests
 │   ├── types/           # TypeScript types
 │   └── App.tsx          # Main app component
+├── firestore.rules       # Firestore security rules
+├── firestore.indexes.json # Firestore composite indexes
 └── package.json
 ```
 
 ## 🔧 Configuration
 
-### GitHub Secrets Required
-
-For GitHub Actions workflows to work, add these secrets:
-
-- `VITE_FIREBASE_API_KEY` - Your Firebase API key
-- `VITE_FIREBASE_AUTH_DOMAIN` - Your Firebase auth domain
-- `VITE_FIREBASE_PROJECT_ID` - Your Firebase project ID
-- `VITE_FIREBASE_STORAGE_BUCKET` - Your Firebase storage bucket
-- `VITE_FIREBASE_MESSAGING_SENDER_ID` - Your Firebase messaging sender ID
-- `VITE_FIREBASE_APP_ID` - Your Firebase app ID
-
 ### Available Scripts
 
 ```bash
 npm run dev          # Start development server
+npm run dev:demo     # Preview with fake data and no Firebase project (port 8090)
 npm run build        # Build for production
 npm run preview      # Preview production build
 npm run lint         # Run ESLint
 npm run type-check   # Run TypeScript compiler check
+npm test             # Run the test suite once
+npm run test:watch   # Run tests in watch mode
 ```
 
 ## 🌟 Key Components

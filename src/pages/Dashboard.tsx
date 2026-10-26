@@ -1,12 +1,13 @@
 import { useAuth } from "@/integrations/firebase/auth";
 import {
-  fetchSubscriptions as fetchSubscriptionsFromDb,
+  fetchSubscriptions,
   addSubscription,
   updateSubscription,
-  deleteSubscription as deleteSubscriptionFromDb,
+  deleteSubscription,
 } from "@/integrations/firebase/subscriptions";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Subscription } from "@/types";
 import { SubscriptionList } from "@/components/SubscriptionList";
 import { SubscriptionForm, SubscriptionFormValues } from "@/components/SubscriptionForm";
@@ -18,136 +19,152 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { showSuccess, showError } from "@/utils/toast";
-import { Loader2, PlusCircle } from "lucide-react";
-import { formatISO } from "date-fns";
+import { Plus } from "lucide-react";
 import { DashboardSummary } from "@/components/DashboardSummary";
 import { CategoryChart } from "@/components/CategoryChart";
 import { UpcomingRenewals } from "@/components/UpcomingRenewals";
+import { RenewalRuler } from "@/components/RenewalRuler";
+import { BrandLoader } from "@/components/Logo";
+import { isActive, toDueDateString } from "@/lib/subscriptions";
+
+const errorMessage = (error: unknown) => (error instanceof Error ? error.message : "Unknown error");
+
+// Firestore reports a query that needs an index which is still building as "failed-precondition".
+const isIndexBuilding = (error: unknown) =>
+  typeof error === "object" && error !== null && (error as { code?: string }).code === "failed-precondition";
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [editingSubscription, setEditingSubscription] = useState<Subscription | null>(null);
 
-  const loadSubscriptions = useCallback(async () => {
-    if (!user) return;
-    setIsLoading(true);
-    try {
-      const data = await fetchSubscriptionsFromDb(user.uid);
-      setSubscriptions(data);
-    } catch (error) {
-      showError("Failed to fetch subscriptions.");
-      console.error(error);
-    }
-    setIsLoading(false);
-  }, [user]);
+  const queryKey = ["subscriptions", user?.uid];
 
-  useEffect(() => {
-    if (user) {
-      loadSubscriptions();
-    }
-  }, [user, loadSubscriptions]);
+  const {
+    data: subscriptions = [],
+    isPending,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey,
+    queryFn: () => fetchSubscriptions(user!.uid),
+    enabled: !!user,
+  });
+
+  const refresh = () => queryClient.invalidateQueries({ queryKey });
+
+  const saveMutation = useMutation({
+    mutationFn: async (formData: SubscriptionFormValues) => {
+      const subscriptionData = {
+        name: formData.name,
+        price: formData.price,
+        currency: formData.currency,
+        category: formData.category?.trim() || null,
+        billing_cycle: formData.billing_cycle,
+        user_id: user!.uid,
+        next_due_date: toDueDateString(formData.next_due_date),
+      };
+
+      if (editingSubscription) {
+        await updateSubscription(editingSubscription.id, subscriptionData);
+      } else {
+        await addSubscription(subscriptionData as Omit<Subscription, "id" | "created_at">);
+      }
+    },
+    onSuccess: () => {
+      showSuccess(`Subscription successfully ${editingSubscription ? "updated" : "added"}!`);
+      setIsFormOpen(false);
+      refresh();
+    },
+    onError: (err) => showError(`Failed to save subscription: ${errorMessage(err)}`),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteSubscription(id),
+    onSuccess: () => {
+      showSuccess("Subscription deleted.");
+      refresh();
+    },
+    onError: (err) => showError(`Failed to delete subscription: ${errorMessage(err)}`),
+  });
+
+  const toggleActiveMutation = useMutation({
+    mutationFn: (subscription: Subscription) =>
+      updateSubscription(subscription.id, { is_active: !isActive(subscription) }),
+    onSuccess: (_data, subscription) => {
+      showSuccess(isActive(subscription) ? "Subscription paused." : "Subscription resumed.");
+      refresh();
+    },
+    onError: (err) => showError(`Failed to update subscription: ${errorMessage(err)}`),
+  });
 
   const handleOpenForm = (subscription: Subscription | null = null) => {
     setEditingSubscription(subscription);
     setIsFormOpen(true);
   };
 
-  const handleSaveSubscription = async (formData: SubscriptionFormValues) => {
-    if (!user) return;
-    setIsSaving(true);
+  if (isPending) {
+    return <BrandLoader label="Loading your subscriptions" />;
+  }
 
-    const subscriptionData = {
-      ...formData,
-      user_id: user.uid,
-      next_due_date: formatISO(formData.next_due_date),
-      price: formData.price,
-    };
-
-    try {
-      if (editingSubscription) {
-        await updateSubscription(editingSubscription.id, subscriptionData);
-      } else {
-        await addSubscription(subscriptionData as Omit<Subscription, "id" | "created_at">);
-      }
-      showSuccess(`Subscription successfully ${editingSubscription ? "updated" : "added"}!`);
-      setIsFormOpen(false);
-      loadSubscriptions();
-    } catch (error) {
-      const err = error as Error;
-      showError(`Failed to save subscription: ${err.message}`);
-    }
-    setIsSaving(false);
-  };
-
-  const handleDeleteSubscription = async (id: string) => {
-    try {
-      await deleteSubscriptionFromDb(id);
-      showSuccess("Subscription deleted.");
-      loadSubscriptions();
-    } catch (error) {
-      const err = error as Error;
-      showError(`Failed to delete subscription: ${err.message}`);
-    }
-  };
-
-  if (isLoading && subscriptions.length === 0) {
+  if (isError) {
     return (
-      <div className="flex items-center justify-center" style={{ height: 'calc(100vh - 200px)'}}>
-        <Loader2 className="h-8 w-8 animate-spin text-neon" />
+      <div role="alert" className="mx-auto flex max-w-lg flex-col items-center py-24 text-center">
+        <h2 className="text-2xl font-medium">We couldn't load your subscriptions</h2>
+        <p className="mt-3 text-muted-foreground">
+          {isIndexBuilding(error)
+            ? "Your database is still getting ready. This usually takes a couple of minutes, so try again shortly."
+            : errorMessage(error)}
+        </p>
+        <Button onClick={() => refetch()} size="lg" className="mt-7">Try again</Button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-neon">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Track your subscriptions and manage your spending.
-          </p>
-        </div>
-        <Button onClick={() => handleOpenForm()} className="btn-neon">
-          <PlusCircle className="mr-2 h-4 w-4" /> Add Subscription
+    <div className="space-y-10 md:space-y-12">
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-lg font-medium text-muted-foreground">Dashboard</h1>
+        <Button onClick={() => handleOpenForm()}>
+          <Plus /> Add subscription
         </Button>
       </div>
 
-      <main className="space-y-6">
-        <DashboardSummary subscriptions={subscriptions} />
+      <DashboardSummary subscriptions={subscriptions} />
 
-        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-5">
-          <div className="lg:col-span-3">
-            <CategoryChart subscriptions={subscriptions} />
-          </div>
-          <div className="lg:col-span-2">
-            <UpcomingRenewals subscriptions={subscriptions} />
-          </div>
+      <RenewalRuler subscriptions={subscriptions} />
+
+      <div className="grid gap-6 lg:grid-cols-5">
+        <div className="lg:col-span-3">
+          <CategoryChart subscriptions={subscriptions} />
         </div>
+        <div className="lg:col-span-2">
+          <UpcomingRenewals subscriptions={subscriptions} />
+        </div>
+      </div>
 
-        <SubscriptionList
-          subscriptions={subscriptions}
-          onEdit={handleOpenForm}
-          onDelete={handleDeleteSubscription}
-          onAdd={() => handleOpenForm()}
-        />
-      </main>
+      <SubscriptionList
+        subscriptions={subscriptions}
+        onEdit={handleOpenForm}
+        onDelete={(id) => deleteMutation.mutate(id)}
+        onToggleActive={(subscription) => toggleActiveMutation.mutate(subscription)}
+        onAdd={() => handleOpenForm()}
+      />
 
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[625px]">
+        <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-[560px]">
           <DialogHeader>
-            <DialogTitle className="text-neon">{editingSubscription ? "Edit" : "Add"} Subscription</DialogTitle>
+            <DialogTitle className="text-2xl font-medium">{editingSubscription ? "Edit" : "Add"} subscription</DialogTitle>
             <DialogDescription>
               {editingSubscription ? "Update the details of your subscription." : "Enter the details of your new subscription."}
             </DialogDescription>
           </DialogHeader>
           <SubscriptionForm
             subscription={editingSubscription}
-            onSave={handleSaveSubscription}
-            isSaving={isSaving}
+            onSave={(data) => saveMutation.mutate(data)}
+            isSaving={saveMutation.isPending}
           />
         </DialogContent>
       </Dialog>

@@ -28,9 +28,11 @@ import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Subscription } from "@/types";
+import { DEFAULT_CURRENCY, parseDueDate } from "@/lib/subscriptions";
 import { useEffect } from "react";
 
 const CURRENCIES = [
+    { value: "INR", label: "INR - Indian Rupee" },
     { value: "USD", label: "USD - US Dollar" },
     { value: "EUR", label: "EUR - Euro" },
     { value: "GBP", label: "GBP - British Pound" },
@@ -39,13 +41,14 @@ const CURRENCIES = [
     { value: "AUD", label: "AUD - Australian Dollar" },
     { value: "CHF", label: "CHF - Swiss Franc" },
     { value: "CNY", label: "CNY - Chinese Yuan" },
-    { value: "INR", label: "INR - Indian Rupee" },
 ];
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  price: z.coerce.number().min(0, { message: "Price must be a positive number." }),
-  currency: z.string().default("USD"),
+  name: z.string().trim().min(2, { message: "Name must be at least 2 characters." }),
+  price: z.coerce
+    .number({ invalid_type_error: "Enter a valid price." })
+    .min(0, { message: "Price cannot be negative." }),
+  currency: z.string().default(DEFAULT_CURRENCY),
   category: z.string().optional(),
   billing_cycle: z.enum(["monthly", "yearly", "one-time"]),
   next_due_date: z.date({ required_error: "A due date is required." }),
@@ -65,7 +68,7 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
     defaultValues: {
       name: "",
       price: 0,
-      currency: "USD",
+      currency: DEFAULT_CURRENCY,
       category: "",
       billing_cycle: "monthly",
     },
@@ -76,16 +79,16 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
       form.reset({
         name: subscription.name,
         price: subscription.price,
-        currency: subscription.currency || "USD",
+        currency: subscription.currency || DEFAULT_CURRENCY,
         category: subscription.category || "",
         billing_cycle: subscription.billing_cycle as "monthly" | "yearly" | "one-time",
-        next_due_date: new Date(subscription.next_due_date),
+        next_due_date: parseDueDate(subscription.next_due_date) ?? undefined,
       });
     } else {
       form.reset({
         name: "",
         price: 0,
-        currency: "USD",
+        currency: DEFAULT_CURRENCY,
         category: "",
         billing_cycle: "monthly",
         next_due_date: undefined,
@@ -109,7 +112,7 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
             </FormItem>
           )}
         />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-3">
           <FormField
             control={form.control}
             name="price"
@@ -117,7 +120,7 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
               <FormItem className="md:col-span-2">
                 <FormLabel>Price</FormLabel>
                 <FormControl>
-                  <Input type="number" step="0.01" placeholder="e.g., 9.99" {...field} />
+                  <Input type="number" step="0.01" min="0" placeholder="e.g., 9.99" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -129,7 +132,7 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Currency</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select currency" />
@@ -159,14 +162,14 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
               </FormItem>
             )}
           />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
           <FormField
             control={form.control}
             name="billing_cycle"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Billing Cycle</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a billing cycle" />
@@ -194,7 +197,7 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "w-full pl-3 text-left font-normal",
+                          "h-11 w-full bg-background/60 pl-3.5 text-left font-normal",
                           !field.value && "text-muted-foreground"
                         )}
                       >
@@ -222,9 +225,9 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
             )}
           />
         </div>
-        <div className="flex justify-end pt-4">
-            <Button type="submit" disabled={isSaving} className="btn-neon">
-                {isSaving ? "Saving..." : "Save Subscription"}
+        <div className="pt-2">
+            <Button type="submit" size="lg" disabled={isSaving} className="w-full">
+                {isSaving ? "Saving..." : "Save subscription"}
             </Button>
         </div>
       </form>

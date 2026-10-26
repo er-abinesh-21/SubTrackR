@@ -1,16 +1,12 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/integrations/firebase/auth";
-import { Loader2 } from "lucide-react";
+import { BrandLoader } from "@/components/Logo";
 
 const ProtectedRoute = () => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-neon" />
-      </div>
-    );
+    return <BrandLoader className="min-h-screen" />;
   }
 
   return user ? <Outlet /> : <Navigate to="/login" replace />;
