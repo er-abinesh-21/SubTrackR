@@ -2,40 +2,53 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import App from '../App';
-import { supabase } from '@/integrations/supabase/client';
 
-// Mock Supabase client
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    auth: {
-      getSession: vi.fn(),
-      getUser: vi.fn(),
-      onAuthStateChange: vi.fn(() => ({
-        data: { subscription: { unsubscribe: vi.fn() } }
-      })),
-      signOut: vi.fn()
-    },
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        order: vi.fn(() => Promise.resolve({ data: [], error: null }))
-      }))
-    }))
-  }
+// Mock Firebase Auth
+const mockUser = {
+  uid: 'test-user-id',
+  email: 'test@example.com',
+};
+
+let mockAuthUser: typeof mockUser | null = null;
+let mockAuthLoading = false;
+const mockSignIn = vi.fn();
+const mockSignUp = vi.fn();
+const mockSignInWithGoogle = vi.fn();
+const mockSignOut = vi.fn();
+const mockResetPassword = vi.fn();
+
+vi.mock('@/integrations/firebase/auth', () => ({
+  AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+  useAuth: () => ({
+    user: mockAuthUser,
+    loading: mockAuthLoading,
+    signIn: mockSignIn,
+    signUp: mockSignUp,
+    signInWithGoogle: mockSignInWithGoogle,
+    signOut: mockSignOut,
+    resetPassword: mockResetPassword,
+  }),
+}));
+
+// Mock Firebase subscriptions service
+vi.mock('@/integrations/firebase/subscriptions', () => ({
+  fetchSubscriptions: vi.fn(() => Promise.resolve([])),
+  addSubscription: vi.fn(),
+  updateSubscription: vi.fn(),
+  deleteSubscription: vi.fn(),
 }));
 
 describe('Routing and Redirects', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockAuthUser = null;
+    mockAuthLoading = false;
   });
 
   describe('Unauthenticated User', () => {
     beforeEach(() => {
-      (supabase.auth.getSession as any).mockResolvedValue({
-        data: { session: null }
-      });
-      (supabase.auth.getUser as any).mockResolvedValue({
-        data: { user: null }
-      });
+      mockAuthUser = null;
+      mockAuthLoading = false;
     });
 
     it('should redirect from / to /login when not authenticated', async () => {
@@ -89,21 +102,9 @@ describe('Routing and Redirects', () => {
   });
 
   describe('Authenticated User', () => {
-    const mockSession = {
-      user: {
-        id: 'test-user-id',
-        email: 'test@example.com'
-      },
-      access_token: 'test-token'
-    };
-
     beforeEach(() => {
-      (supabase.auth.getSession as any).mockResolvedValue({
-        data: { session: mockSession }
-      });
-      (supabase.auth.getUser as any).mockResolvedValue({
-        data: { user: mockSession.user }
-      });
+      mockAuthUser = mockUser;
+      mockAuthLoading = false;
     });
 
     it('should redirect from / to /dashboard when authenticated', async () => {
@@ -157,12 +158,9 @@ describe('Routing and Redirects', () => {
   });
 
   describe('Auth State Changes', () => {
-    it('should redirect to login when user signs out', async () => {
-      const mockAuthChange = vi.fn();
-      (supabase.auth.onAuthStateChange as any).mockImplementation((callback) => {
-        mockAuthChange.mockImplementation(callback);
-        return { data: { subscription: { unsubscribe: vi.fn() } } };
-      });
+    it('should show login when user is not authenticated', async () => {
+      mockAuthUser = null;
+      mockAuthLoading = false;
 
       render(
         <MemoryRouter initialEntries={['/dashboard']}>
@@ -170,29 +168,20 @@ describe('Routing and Redirects', () => {
         </MemoryRouter>
       );
 
-      // Simulate sign out
-      mockAuthChange('SIGNED_OUT', null);
-
       await waitFor(() => {
         expect(window.location.pathname).toBe('/login');
       });
     });
 
-    it('should redirect to dashboard when user signs in', async () => {
-      const mockAuthChange = vi.fn();
-      (supabase.auth.onAuthStateChange as any).mockImplementation((callback) => {
-        mockAuthChange.mockImplementation(callback);
-        return { data: { subscription: { unsubscribe: vi.fn() } } };
-      });
+    it('should show dashboard when user is authenticated', async () => {
+      mockAuthUser = mockUser;
+      mockAuthLoading = false;
 
       render(
         <MemoryRouter initialEntries={['/login']}>
           <App />
         </MemoryRouter>
       );
-
-      // Simulate sign in
-      mockAuthChange('SIGNED_IN', { user: { id: 'test-id', email: 'test@example.com' } });
 
       await waitFor(() => {
         expect(window.location.pathname).toBe('/dashboard');

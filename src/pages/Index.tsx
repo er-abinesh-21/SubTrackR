@@ -1,23 +1,21 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/integrations/firebase/auth";
 import { Loader2 } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
+    if (!loading) {
+      if (user) {
         navigate("/dashboard");
       } else {
         navigate("/login");
       }
-    };
-
-    checkSession();
-  }, [navigate]);
+    }
+  }, [user, loading, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">

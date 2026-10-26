@@ -4,7 +4,7 @@
   <img src="https://img.shields.io/badge/React-18.3.1-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React" />
   <img src="https://img.shields.io/badge/TypeScript-5.6.2-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Vite-5.4.10-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
-  <img src="https://img.shields.io/badge/Supabase-Database-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
+  <img src="https://img.shields.io/badge/Firebase-Backend-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase" />
   <img src="https://img.shields.io/badge/Tailwind_CSS-3.4.15-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind" />
 </div>
 
@@ -35,7 +35,7 @@
 
 ### 🔔 **Smart Notifications**
 - Automated email reminders 7 days before renewal
-- Supabase Edge Functions for serverless notifications
+- Firebase Cloud Functions for serverless notifications
 - Customizable reminder preferences
 
 ### 🎨 **Modern UI/UX**
@@ -46,10 +46,10 @@
 - Intuitive navigation
 
 ### 🔐 **Security & Authentication**
-- Secure authentication via Supabase Auth
-- Email/password login
+- Secure authentication via Firebase Auth
+- Email/password and Google Sign-In
 - Protected routes and session management
-- Row-level security for data protection
+- Firestore security rules for data protection
 
 ## 🛠️ Tech Stack
 
@@ -82,12 +82,11 @@
 <td>
 
 ### Backend
-- **Supabase** - Backend as a Service
-  - PostgreSQL database
-  - Authentication
-  - Real-time subscriptions
-  - Edge Functions
-- **Deno** - Edge function runtime
+- **Firebase** - Backend as a Service
+  - Cloud Firestore database
+  - Firebase Authentication (Email/Password & Google)
+  - Real-time data sync
+  - Cloud Functions
 
 </td>
 <td>
@@ -107,7 +106,7 @@
 ### Prerequisites
 
 - Node.js 18+ and npm/pnpm
-- Supabase account (free tier works)
+- Firebase account (free tier works)
 - Git
 
 ### Installation
@@ -130,36 +129,35 @@ pnpm install
 cp .env.example .env
 ```
 
-Edit `.env` and add your Supabase credentials:
+Edit `.env` and add your Firebase credentials:
 ```env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
 ```
 
-4. **Set up Supabase**
+4. **Set up Firebase**
 
-Create a new Supabase project and run the following SQL to create the subscriptions table:
+   1. Create a new Firebase project at [Firebase Console](https://console.firebase.google.com/)
+   2. Enable **Authentication** → Sign-in method → Enable **Email/Password** and **Google**
+   3. Create a **Cloud Firestore** database
+   4. Add the following Firestore security rules:
 
-```sql
-CREATE TABLE subscriptions (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  name VARCHAR(255) NOT NULL,
-  price DECIMAL(10, 2) NOT NULL,
-  currency VARCHAR(3) DEFAULT 'USD',
-  billing_cycle VARCHAR(20) NOT NULL,
-  category VARCHAR(50),
-  next_due_date DATE NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Enable Row Level Security
-ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
-
--- Create policy for users to manage their own subscriptions
-CREATE POLICY "Users can manage their own subscriptions" ON subscriptions
-  FOR ALL USING (auth.uid() = user_id);
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /subscriptions/{subscriptionId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == resource.data.user_id;
+      allow create: if request.auth != null
+                    && request.auth.uid == request.resource.data.user_id;
+    }
+  }
+}
 ```
 
 5. **Run the development server**
@@ -186,8 +184,6 @@ SubTrackR/
 │   ├── pages/           # Route pages
 │   ├── types/           # TypeScript types
 │   └── App.tsx          # Main app component
-├── supabase/
-│   └── functions/       # Edge functions
 └── package.json
 ```
 
@@ -197,9 +193,12 @@ SubTrackR/
 
 For GitHub Actions workflows to work, add these secrets:
 
-- `SUPABASE_URL` - Your Supabase project URL
-- `SUPABASE_ANON_KEY` - Your Supabase anonymous key
-- `SUPABASE_SERVICE_ROLE_KEY` - For Edge Functions (optional)
+- `VITE_FIREBASE_API_KEY` - Your Firebase API key
+- `VITE_FIREBASE_AUTH_DOMAIN` - Your Firebase auth domain
+- `VITE_FIREBASE_PROJECT_ID` - Your Firebase project ID
+- `VITE_FIREBASE_STORAGE_BUCKET` - Your Firebase storage bucket
+- `VITE_FIREBASE_MESSAGING_SENDER_ID` - Your Firebase messaging sender ID
+- `VITE_FIREBASE_APP_ID` - Your Firebase app ID
 
 ### Available Scripts
 
@@ -263,7 +262,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgments
 
 - [shadcn/ui](https://ui.shadcn.com/) for the beautiful component library
-- [Supabase](https://supabase.com/) for the backend infrastructure
+- [Firebase](https://firebase.google.com/) for the backend infrastructure
 - [Tailwind CSS](https://tailwindcss.com/) for the styling system
 - [Lucide](https://lucide.dev/) for the icon set
 
@@ -275,7 +274,7 @@ Project Link: [https://github.com//SubTrackR](https://github.com/er-abinesh-21/S
 ---
 
 <div align="center">
-  <p>Built with ❤️ using React, TypeScript, and Supabase</p>
+  <p>Built with ❤️ using React, TypeScript, and Firebase</p>
   <p>⭐ Star this repo if you find it helpful!</p>
 </div>
 

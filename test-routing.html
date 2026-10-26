@@ -136,8 +136,8 @@
         // Check auth status (simulated)
         async function checkAuthStatus() {
             try {
-                // This would normally check with Supabase
-                const hasAuth = localStorage.getItem('supabase.auth.token');
+                // This would normally check with Firebase Auth
+                const hasAuth = localStorage.getItem('firebase:authUser');
                 document.getElementById('auth-status').innerHTML = hasAuth 
                     ? '<span class="status pass">Authenticated</span>' 
                     : '<span class="status fail">Not Authenticated</span>';

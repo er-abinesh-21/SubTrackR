@@ -1,6 +1,6 @@
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogOut } from "lucide-react";
 import {
   DropdownMenu,
@@ -10,29 +10,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
-import type { User } from "@supabase/supabase-js";
+import { useAuth } from "@/integrations/firebase/auth";
 
 const AppLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-    };
-    fetchUser();
-  }, []);
+  const { user, signOut } = useAuth();
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await signOut();
     navigate("/login");
   };
 
-  const userInitials = user?.email?.substring(0, 2).toUpperCase() || 'U';
+  const userInitials =
+    user?.displayName
+      ? user.displayName
+          .split(" ")
+          .map((n) => n[0])
+          .join("")
+          .substring(0, 2)
+          .toUpperCase()
+      : user?.email?.substring(0, 2).toUpperCase() || "U";
 
   return (
     <div className="min-h-screen w-full">
@@ -58,6 +56,9 @@ const AppLayout = () => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                   <Avatar className="h-9 w-9">
+                    {user?.photoURL && (
+                      <AvatarImage src={user.photoURL} alt={user.displayName || user.email || "User"} />
+                    )}
                     <AvatarFallback>{userInitials}</AvatarFallback>
                   </Avatar>
                 </Button>
@@ -65,7 +66,9 @@ const AppLayout = () => {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">My Account</p>
+                    <p className="text-sm font-medium leading-none">
+                      {user?.displayName || "My Account"}
+                    </p>
                     <p className="text-xs leading-none text-muted-foreground">
                       {user?.email}
                     </p>

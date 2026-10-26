@@ -1,8 +1,12 @@
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/integrations/firebase/auth";
+import {
+  fetchSubscriptions as fetchSubscriptionsFromDb,
+  addSubscription,
+  updateSubscription,
+  deleteSubscription as deleteSubscriptionFromDb,
+} from "@/integrations/firebase/subscriptions";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import type { User } from "@supabase/supabase-js";
+import { useEffect, useState, useCallback } from "react";
 import { Subscription } from "@/types";
 import { SubscriptionList } from "@/components/SubscriptionList";
 import { SubscriptionForm, SubscriptionFormValues } from "@/components/SubscriptionForm";
@@ -21,51 +25,31 @@ import { CategoryChart } from "@/components/CategoryChart";
 import { UpcomingRenewals } from "@/components/UpcomingRenewals";
 
 const Dashboard = () => {
-  const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
+  const { user } = useAuth();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [editingSubscription, setEditingSubscription] = useState<Subscription | null>(null);
 
-  useEffect(() => {
-    // Get current user session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        setUser(session.user);
-      }
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  const loadSubscriptions = useCallback(async () => {
+    if (!user) return;
+    setIsLoading(true);
+    try {
+      const data = await fetchSubscriptionsFromDb(user.uid);
+      setSubscriptions(data);
+    } catch (error) {
+      showError("Failed to fetch subscriptions.");
+      console.error(error);
+    }
+    setIsLoading(false);
+  }, [user]);
 
   useEffect(() => {
     if (user) {
-      fetchSubscriptions();
+      loadSubscriptions();
     }
-  }, [user]);
-
-  const fetchSubscriptions = async () => {
-    setIsLoading(true);
-    const { data, error } = await supabase
-      .from("subscriptions")
-      .select("*")
-      .order("next_due_date", { ascending: true });
-
-    if (error) {
-      showError("Failed to fetch subscriptions.");
-      console.error(error);
-    } else {
-      setSubscriptions(data as Subscription[]);
-    }
-    setIsLoading(false);
-  };
+  }, [user, loadSubscriptions]);
 
   const handleOpenForm = (subscription: Subscription | null = null) => {
     setEditingSubscription(subscription);
@@ -78,42 +62,35 @@ const Dashboard = () => {
 
     const subscriptionData = {
       ...formData,
-      user_id: user.id,
+      user_id: user.uid,
       next_due_date: formatISO(formData.next_due_date),
-      price: formData.price
+      price: formData.price,
     };
 
-    let error;
-    if (editingSubscription) {
-      const { error: updateError } = await supabase
-        .from("subscriptions")
-        .update(subscriptionData)
-        .eq("id", editingSubscription.id);
-      error = updateError;
-    } else {
-      const { error: insertError } = await supabase
-        .from("subscriptions")
-        .insert(subscriptionData);
-      error = insertError;
-    }
-
-    if (error) {
-      showError(`Failed to save subscription: ${error.message}`);
-    } else {
-      showSuccess(`Subscription successfully ${editingSubscription ? 'updated' : 'added'}!`);
+    try {
+      if (editingSubscription) {
+        await updateSubscription(editingSubscription.id, subscriptionData);
+      } else {
+        await addSubscription(subscriptionData as Omit<Subscription, "id" | "created_at">);
+      }
+      showSuccess(`Subscription successfully ${editingSubscription ? "updated" : "added"}!`);
       setIsFormOpen(false);
-      fetchSubscriptions();
+      loadSubscriptions();
+    } catch (error) {
+      const err = error as Error;
+      showError(`Failed to save subscription: ${err.message}`);
     }
     setIsSaving(false);
   };
 
   const handleDeleteSubscription = async (id: string) => {
-    const { error } = await supabase.from("subscriptions").delete().eq("id", id);
-    if (error) {
-      showError(`Failed to delete subscription: ${error.message}`);
-    } else {
+    try {
+      await deleteSubscriptionFromDb(id);
       showSuccess("Subscription deleted.");
-      fetchSubscriptions();
+      loadSubscriptions();
+    } catch (error) {
+      const err = error as Error;
+      showError(`Failed to delete subscription: ${err.message}`);
     }
   };
 
