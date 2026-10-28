@@ -95,7 +95,7 @@ describe("Dashboard", () => {
     // Netflix (3d), Spotify EU (5d) and Disney (30d). Hosting is 60 days out and Old Gym is paused.
     const markers = screen.getAllByRole("button", { name: /, due / });
     expect(markers.map((m) => m.getAttribute("aria-label")?.split(",")[0])).toEqual(["Netflix", "Spotify EU", "Disney"]);
-    expect(screen.getByText(/3 charges/)).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "Next 30 days" })).getByText(/3 charges/)).toBeInTheDocument();
   });
 
   it("starts new subscriptions in the default currency (INR)", async () => {
@@ -199,6 +199,18 @@ describe("Dashboard", () => {
       expect(within(screen.getByRole("listbox")).getByRole("option", { name: "Spotify" })).toBeInTheDocument();
       expect(within(screen.getByRole("listbox")).queryByRole("option", { name: "Netflix" })).not.toBeInTheDocument();
     });
+  });
+
+  it("projects spending for the next twelve months", async () => {
+    renderDashboard();
+    await screen.findByRole("heading", { name: "Dashboard" });
+
+    const panel = screen.getByRole("region", { name: "Next 12 months" });
+    const bars = within(panel).getAllByRole("button", { name: / charges?$/ });
+    expect(bars).toHaveLength(12);
+    // Active USD subscriptions only: Netflix 15 and Disney 8 monthly, Hosting 120 yearly.
+    expect(within(panel).getByText(/Only USD subscriptions are included/)).toBeInTheDocument();
+    expect(within(panel).getByText(/is your busiest month/)).toBeInTheDocument();
   });
 
   it("asks for confirmation before deleting", async () => {

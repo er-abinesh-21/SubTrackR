@@ -24,6 +24,7 @@ import { DashboardSummary } from "@/components/DashboardSummary";
 import { CategoryChart } from "@/components/CategoryChart";
 import { UpcomingRenewals } from "@/components/UpcomingRenewals";
 import { RenewalRuler } from "@/components/RenewalRuler";
+import { SpendingProjection } from "@/components/SpendingProjection";
 import { BrandLoader } from "@/components/Logo";
 import { isActive, markPaidUpdate, parseDueDate, toDueDateString } from "@/lib/subscriptions";
 import { format } from "date-fns";
@@ -178,6 +179,8 @@ const Dashboard = () => {
           />
         </div>
       </div>
+
+      <SpendingProjection subscriptions={subscriptions} />
 
       <SubscriptionList
         subscriptions={subscriptions}

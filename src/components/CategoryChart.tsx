@@ -28,9 +28,9 @@ const COLORS = [
   "hsl(var(--blush))",
   "hsl(var(--brick))",
   "hsl(var(--sand))",
-  "#F3A08A",
-  "#8F6B6B",
-  "#D4D0BE",
+  "hsl(var(--tint-a))",
+  "hsl(var(--tint-b))",
+  "hsl(var(--tint-c))",
 ];
 const getColor = (index: number) =>
   index < COLORS.length ? COLORS[index] : `hsl(${((index - COLORS.length) * 47 + 20) % 360} 60% 68%)`;
