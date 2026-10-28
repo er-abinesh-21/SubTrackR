@@ -226,7 +226,7 @@ npm run test:watch   # Run tests in watch mode
 npm run build
 ```
 
-2. Deploy the `dist` folder to your hosting service
+2. Deploy the `dist` folder to your hosting service. The app handles routes like `/dashboard` in the browser, so the host must serve `index.html` for every path. `vercel.json` already does this for Vercel; other hosts need an equivalent rewrite rule, or reloading a page other than `/` returns a 404.
 
 3. Set up environment variables on your hosting platform
 
