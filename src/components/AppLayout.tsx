@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/integrations/firebase/auth";
 import { Logo } from "@/components/Logo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const NAV_ITEMS = [{ to: "/dashboard", label: "Dashboard" }];
 
@@ -70,7 +71,8 @@ const AppLayout = () => {
               );
             })}
           </nav>
-          <div className="ml-auto flex items-center">
+          <div className="ml-auto flex items-center gap-3">
+            <ThemeToggle />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button

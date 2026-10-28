@@ -7,6 +7,20 @@
     <meta name="description" content="See what you pay for every subscription, and what renews next." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>SubTrackR</title>
+    <script>
+      // Apply the saved theme before first paint so a reload never flashes the wrong one. Dark is the default.
+      (function () {
+        var theme = "dark";
+        try {
+          if (localStorage.getItem("subtrackr-theme") === "light") theme = "light";
+        } catch (e) {}
+        var root = document.documentElement;
+        root.dataset.theme = theme;
+        root.classList.toggle("dark", theme === "dark");
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute("content", theme === "light" ? "#EDEBDD" : "#1B1717");
+      })();
+    </script>
   </head>
 
   <body>

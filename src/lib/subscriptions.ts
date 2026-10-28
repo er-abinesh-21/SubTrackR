@@ -2,10 +2,12 @@ import {
   addMonths,
   addYears,
   differenceInCalendarDays,
+  differenceInCalendarMonths,
   format,
   isValid,
   parseISO,
   startOfDay,
+  startOfMonth,
 } from "date-fns";
 import { Subscription } from "@/types";
 
@@ -125,4 +127,54 @@ export const describeDays = (days: number) => {
   if (days <= 0) return days === 0 ? "today" : `${Math.abs(days)} ${Math.abs(days) === 1 ? "day" : "days"} ago`;
   if (days === 1) return "tomorrow";
   return `in ${days} days`;
+};
+
+export interface MonthProjection {
+  /** First day of the month. */
+  month: Date;
+  total: number;
+  charges: number;
+}
+
+/**
+ * What will be charged in each of the next `months` calendar months, from each active
+ * subscription's schedule. Only the most-used currency is counted, like the other totals.
+ * The first month only includes charges from today onward.
+ */
+export const projectMonthlySpend = (subs: Subscription[], today: Date = new Date(), months = 12) => {
+  const active = subs.filter(isActive);
+  const currency = getPrimaryCurrency(active);
+  const counted = active.filter((s) => (s.currency || DEFAULT_CURRENCY) === currency);
+
+  const firstMonth = startOfMonth(today);
+  const end = addMonths(firstMonth, months);
+  const result: MonthProjection[] = Array.from({ length: months }, (_, i) => ({
+    month: addMonths(firstMonth, i),
+    total: 0,
+    charges: 0,
+  }));
+
+  for (const sub of counted) {
+    const firstDue = getNextDueDate(sub, today);
+    if (!firstDue) continue;
+    const price = Number(sub.price) || 0;
+    const recurring = sub.billing_cycle === "monthly" || sub.billing_cycle === "yearly";
+
+    // Step from the first due date each time so a 31st-of-the-month charge does not drift.
+    for (let n = 0; ; n++) {
+      const due = sub.billing_cycle === "monthly" ? addMonths(firstDue, n) : sub.billing_cycle === "yearly" ? addYears(firstDue, n) : firstDue;
+      if (due >= end) break;
+      const slot = result[differenceInCalendarMonths(due, firstMonth)];
+      slot.total += price;
+      slot.charges += 1;
+      if (!recurring) break;
+    }
+  }
+
+  return {
+    months: result,
+    currency,
+    total: result.reduce((sum, m) => sum + m.total, 0),
+    hasOtherCurrencies: counted.length < active.length,
+  };
 };

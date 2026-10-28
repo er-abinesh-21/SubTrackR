@@ -8,6 +8,7 @@ import {
   markPaidUpdate,
   monthlyCost,
   parseDueDate,
+  projectMonthlySpend,
   toDueDateString,
   yearlyCost,
 } from "./subscriptions";
@@ -137,5 +138,54 @@ describe("markPaidUpdate", () => {
     expect(isPaidOneTime(paid)).toBe(true);
     expect(getNextDueDate(paid, today)).toBeNull();
     expect(isPaidOneTime(oneTime)).toBe(false);
+  });
+});
+
+describe("projectMonthlySpend", () => {
+  const today = day(2026, 10, 28);
+  const totals = (subs: Subscription[]) => projectMonthlySpend(subs, today).months.map((m) => m.total);
+  const charges = (subs: Subscription[]) => projectMonthlySpend(subs, today).months.map((m) => m.charges);
+
+  it("covers twelve calendar months starting with the current one", () => {
+    const { months } = projectMonthlySpend([], today);
+    expect(months).toHaveLength(12);
+    expect(months[0].month).toEqual(day(2026, 10, 1));
+    expect(months[11].month).toEqual(day(2027, 9, 1));
+  });
+
+  it("charges a monthly subscription every month from its next due date", () => {
+    const monthly = sub({ price: 100, next_due_date: "2026-11-05" });
+    // Nothing more in October, then one charge a month; the 12th would land in Oct 2027.
+    expect(charges([monthly])).toEqual([0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+    expect(projectMonthlySpend([monthly], today).total).toBe(1100);
+  });
+
+  it("includes a charge still to come this month, and rolls a lapsed one forward", () => {
+    expect(charges([sub({ next_due_date: "2026-10-30" })])[0]).toBe(1);
+    expect(charges([sub({ next_due_date: "2026-10-01" })])).toEqual([0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+  });
+
+  it("puts a yearly subscription in a single month", () => {
+    const yearly = sub({ billing_cycle: "yearly", price: 1200, next_due_date: "2027-03-10" });
+    expect(totals([yearly])).toEqual([0, 0, 0, 0, 0, 1200, 0, 0, 0, 0, 0, 0]);
+  });
+
+  it("counts an unpaid one-time payment once, and nothing once it is paid", () => {
+    const oneTime = sub({ billing_cycle: "one-time", price: 500, next_due_date: "2026-12-15" });
+    expect(totals([oneTime])[2]).toBe(500);
+    expect(projectMonthlySpend([oneTime], today).total).toBe(500);
+    expect(projectMonthlySpend([{ ...oneTime, last_paid_at: "2026-10-01" }], today).total).toBe(0);
+  });
+
+  it("ignores paused subscriptions and other currencies, and says so", () => {
+    const subs = [
+      sub({ id: "a", price: 100, next_due_date: "2026-11-05" }),
+      sub({ id: "b", price: 999, is_active: false, next_due_date: "2026-11-05" }),
+      sub({ id: "c", price: 50, currency: "EUR", next_due_date: "2026-11-05" }),
+    ];
+    const result = projectMonthlySpend(subs, today);
+    expect(result.currency).toBe("EUR"); // one USD vs one EUR: ties break alphabetically
+    expect(result.hasOtherCurrencies).toBe(true);
+    expect(result.total).toBe(550);
   });
 });

@@ -3,16 +3,23 @@
 @tailwind utilities;
 
 /*
- * SubTrackR palette: Noir Black ground, Cotton text, Cherry Red actions, Maroon panels.
- *   Noir   #1B1717  page            Cotton #EDEBDD  text
- *   Cherry #810100  filled actions  Maroon #630000  brand panel
- * Cherry is too dark to read as text or strokes on Noir (1.6:1), so small marks use
- * "highlight", a lighter tint of the same hue. Surfaces are Noir warmed toward Maroon.
- * Blush, brick and sand are tints for charts and art. The app is dark-only; the
- * `dark` class on <html> stays for third-party components.
+ * SubTrackR palette: Noir Black, Cotton, Cherry Red and Maroon.
+ *   Noir   #1B1717    Cotton #EDEBDD    Cherry #810100    Maroon #630000
+ * Dark (default): Noir page, Cotton text, Cherry filled actions. Cherry is too dark to read
+ * as small text or strokes on Noir (1.6:1), so those use "highlight", a lighter tint of it.
+ * Light: Cotton page, Noir text, Cherry for both actions and small marks (9:1 on Cotton).
+ * The theme is set on <html data-theme> by index.html and src/hooks/use-theme.ts.
+ * `.force-dark` re-applies the dark tokens inside a light page (the Maroon login panel).
  */
 @layer base {
   :root {
+    --radius: 0.75rem;
+  }
+
+  :root,
+  .force-dark {
+    color-scheme: dark;
+
     --background: 0 8% 10%;
     --foreground: 52 31% 90%;
 
@@ -46,12 +53,61 @@
     --blush: 16 58% 78%;
     --brick: 3 51% 47%;
     --sand: 36 29% 70%;
+    --tint-a: 12 85% 72%;
+    --tint-b: 0 14% 49%;
+    --tint-c: 51 22% 78%;
 
-    --radius: 0.75rem;
+    --glow-alpha: 0.3;
+    --grain-opacity: 0.045;
+    --grain-blend: overlay;
+    --shadow-ink: 0 0% 0%;
+    --shadow-alpha: 0.55;
   }
 
-  .dark {
-    color-scheme: dark;
+  :root[data-theme="light"] {
+    color-scheme: light;
+
+    --background: 52 31% 90%;
+    --foreground: 0 8% 10%;
+
+    --card: 50 40% 94%;
+    --card-foreground: 0 8% 10%;
+
+    --popover: 53 36% 96%;
+    --popover-foreground: 0 8% 10%;
+
+    --primary: 0 100% 25%;
+    --primary-foreground: 52 31% 90%;
+
+    --secondary: 51 26% 85%;
+    --secondary-foreground: 0 8% 10%;
+
+    --muted: 51 26% 85%;
+    --muted-foreground: 20 6% 37%;
+
+    --accent: 50 24% 81%;
+    --accent-foreground: 0 8% 10%;
+
+    --destructive: 3 72% 37%;
+    --destructive-foreground: 52 31% 90%;
+
+    --border: 48 21% 78%;
+    --input: 47 17% 69%;
+    --ring: 0 100% 25%;
+
+    --highlight: 0 100% 25%;
+    --blush: 14 53% 55%;
+    --brick: 3 72% 37%;
+    --sand: 45 18% 46%;
+    --tint-a: 31 63% 44%;
+    --tint-b: 0 18% 41%;
+    --tint-c: 49 13% 33%;
+
+    --glow-alpha: 0.09;
+    --grain-opacity: 0.06;
+    --grain-blend: multiply;
+    --shadow-ink: 20 15% 25%;
+    --shadow-alpha: 0.22;
   }
 }
 
@@ -61,7 +117,6 @@
   }
 
   html {
-    color-scheme: dark;
     -webkit-text-size-adjust: 100%;
   }
 
@@ -70,7 +125,7 @@
     min-height: 100vh;
     background-image: radial-gradient(
       1100px 520px at 12% -8%,
-      hsl(var(--primary) / 0.3),
+      hsl(var(--primary) / var(--glow-alpha)),
       transparent 65%
     );
     background-attachment: fixed;
@@ -83,8 +138,8 @@
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    opacity: 0.045;
-    mix-blend-mode: overlay;
+    opacity: var(--grain-opacity);
+    mix-blend-mode: var(--grain-blend);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
@@ -118,7 +173,7 @@
     @apply rounded-2xl border bg-card;
     box-shadow:
       inset 0 1px 0 hsl(var(--foreground) / 0.04),
-      0 18px 40px -24px hsl(0 0% 0% / 0.55);
+      0 18px 40px -24px hsl(var(--shadow-ink) / var(--shadow-alpha));
   }
 
   .hairline-y > * + * {

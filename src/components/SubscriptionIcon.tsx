@@ -131,7 +131,7 @@ export function SubscriptionIcon({ name, brand: savedBrand, size = "md", classNa
       <div
         aria-hidden="true"
         data-brand={brand.id}
-        className={cn("flex shrink-0 items-center justify-center ring-1 ring-inset ring-white/10", s.box, className)}
+        className={cn("flex shrink-0 items-center justify-center ring-1 ring-inset ring-black/10 dark:ring-white/10", s.box, className)}
         style={{ backgroundColor: colors.background }}
       >
         <svg viewBox="0 0 24 24" className={s.mark} fill={colors.mark} role="img">

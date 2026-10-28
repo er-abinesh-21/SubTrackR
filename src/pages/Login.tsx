@@ -8,6 +8,7 @@ import { showSuccess } from "@/utils/toast";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Logo, BrandLoader } from "@/components/Logo";
 import { OrbitArt } from "@/components/OrbitArt";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const getFirebaseErrorMessage = (code: string): string => {
   switch (code) {
@@ -115,7 +116,7 @@ const Login = () => {
   return (
     <div className="grid min-h-screen lg:grid-cols-[1.05fr_1fr]">
       {/* Brand side */}
-      <aside className="relative hidden overflow-hidden bg-maroon text-foreground lg:flex lg:flex-col lg:justify-between lg:p-12">
+      <aside className="force-dark relative hidden overflow-hidden bg-maroon text-foreground lg:flex lg:flex-col lg:justify-between lg:p-12">
         <Logo />
         <div className="relative mx-auto aspect-square w-full max-w-[460px]">
           <OrbitArt className="absolute inset-0" />
@@ -131,7 +132,8 @@ const Login = () => {
       </aside>
 
       {/* Form side */}
-      <main className="flex items-center justify-center px-6 py-12 sm:px-10">
+      <main className="relative flex items-center justify-center px-6 py-12 sm:px-10">
+        <ThemeToggle className="absolute right-5 top-5" />
         <div className="w-full max-w-[400px]">
           <Logo className="mb-12 lg:hidden" />
 
