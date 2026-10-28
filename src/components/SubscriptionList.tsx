@@ -153,7 +153,7 @@ export function SubscriptionList({ subscriptions, onEdit, onDelete, onToggleActi
                 >
                   <TableCell className="w-full max-w-0 py-4 pl-0">
                     <div className={cn("flex items-center gap-3.5 transition-opacity duration-300", !active && "opacity-55")}>
-                      <SubscriptionIcon name={sub.name} />
+                      <SubscriptionIcon name={sub.name} brand={sub.brand} />
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 font-medium leading-tight">
                           <span className="truncate">{sub.name}</span>

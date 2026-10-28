@@ -26,3 +26,18 @@ describe("SubscriptionIcon", () => {
     expect(tile).toHaveTextContent("GM");
   });
 });
+
+describe("SubscriptionIcon with a saved brand", () => {
+  const tile = (props: { name: string; brand?: string | null }) =>
+    render(<SubscriptionIcon {...props} />).container.firstElementChild as HTMLElement;
+
+  it("shows the chosen brand instead of the one the name suggests", () => {
+    expect(tile({ name: "Netflix", brand: "spotify" }).dataset.brand).toBe("spotify");
+  });
+
+  it("shows initials when the user chose no logo", () => {
+    const t = tile({ name: "Netflix", brand: "none" });
+    expect(t.dataset.brand).toBeUndefined();
+    expect(t).toHaveTextContent("N");
+  });
+});

@@ -131,7 +131,7 @@ export function RenewalRuler({ subscriptions }: RenewalRulerProps) {
                       animationDelay: `${Math.round(c.position * SWEEP_MS + 180)}ms`,
                     }}
                   >
-                    <SubscriptionIcon name={c.sub.name} size="sm" />
+                    <SubscriptionIcon name={c.sub.name} brand={c.sub.brand} size="sm" />
                   </button>
                 </div>
               );
@@ -192,7 +192,7 @@ export function RenewalRuler({ subscriptions }: RenewalRulerProps) {
       <div className="flex min-h-[64px] items-center gap-3 border-t border-border bg-background/30 px-5 py-3 sm:px-7" aria-live="polite">
         {selected ? (
           <>
-            <SubscriptionIcon name={selected.sub.name} size="sm" />
+            <SubscriptionIcon name={selected.sub.name} brand={selected.sub.brand} size="sm" />
             <p className="min-w-0 flex-1 truncate text-sm">
               <span className="font-medium">{selected.sub.name}</span>
               <span className="text-muted-foreground">

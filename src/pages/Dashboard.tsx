@@ -63,6 +63,7 @@ const Dashboard = () => {
         price: formData.price,
         currency: formData.currency,
         category: formData.category?.trim() || null,
+        brand: formData.brand,
         billing_cycle: formData.billing_cycle,
         user_id: user!.uid,
         next_due_date: toDueDateString(formData.next_due_date),

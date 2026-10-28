@@ -10,5 +10,7 @@ export type Subscription = {
   is_active: boolean;
   /** `yyyy-MM-dd` of the most recent payment the user marked as paid. */
   last_paid_at?: string | null;
+  /** Logo id from lib/brands, or "none". Undefined means: match the name. */
+  brand?: string | null;
   created_at: string;
 };

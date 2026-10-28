@@ -8,73 +8,16 @@ import {
   ShoppingBag,
   Zap,
 } from "lucide-react";
-import {
-  siApplemusic,
-  siAppletv,
-  siAudible,
-  siClaude,
-  siCrunchyroll,
-  siDropbox,
-  siFigma,
-  siGithub,
-  siGoogledrive,
-  siGoogleplay,
-  siHbomax,
-  siIcloud,
-  siLinear,
-  siMedium,
-  siNetflix,
-  siNotion,
-  siPandora,
-  siPlaystation,
-  siPlex,
-  siSoundcloud,
-  siSpotify,
-  siSteam,
-  siTidal,
-  siYoutube,
-  siYoutubemusic,
-  siZoom,
-  SimpleIcon,
-} from "simple-icons";
+import { resolveBrand } from "@/lib/brands";
 import { cn } from "@/lib/utils";
 
 interface SubscriptionIconProps {
   name: string;
+  /** The brand saved on the subscription; undefined falls back to matching the name. */
+  brand?: string | null;
   size?: "sm" | "md";
   className?: string;
 }
-
-// Official brand marks (simple-icons, CC0). Order matters: the first match wins, so more
-// specific names come before general ones ("youtube music" before "youtube").
-const BRANDS: { keywords: string[]; icon: SimpleIcon }[] = [
-  { keywords: ["netflix"], icon: siNetflix },
-  { keywords: ["youtube music"], icon: siYoutubemusic },
-  { keywords: ["youtube"], icon: siYoutube },
-  { keywords: ["apple music"], icon: siApplemusic },
-  { keywords: ["apple tv"], icon: siAppletv },
-  { keywords: ["spotify"], icon: siSpotify },
-  { keywords: ["hbo"], icon: siHbomax },
-  { keywords: ["crunchyroll"], icon: siCrunchyroll },
-  { keywords: ["plex"], icon: siPlex },
-  { keywords: ["tidal"], icon: siTidal },
-  { keywords: ["soundcloud"], icon: siSoundcloud },
-  { keywords: ["pandora"], icon: siPandora },
-  { keywords: ["audible"], icon: siAudible },
-  { keywords: ["icloud"], icon: siIcloud },
-  { keywords: ["dropbox"], icon: siDropbox },
-  { keywords: ["google drive"], icon: siGoogledrive },
-  { keywords: ["google play"], icon: siGoogleplay },
-  { keywords: ["playstation", "ps plus"], icon: siPlaystation },
-  { keywords: ["steam"], icon: siSteam },
-  { keywords: ["figma"], icon: siFigma },
-  { keywords: ["notion"], icon: siNotion },
-  { keywords: ["linear"], icon: siLinear },
-  { keywords: ["github"], icon: siGithub },
-  { keywords: ["medium"], icon: siMedium },
-  { keywords: ["zoom"], icon: siZoom },
-  { keywords: ["claude", "anthropic"], icon: siClaude },
-];
 
 // Services whose official marks are not available: a glyph that hints at the category.
 const GLYPHS: { keywords: string[]; icon: React.ElementType }[] = [
@@ -111,17 +54,17 @@ const brandColors = (hex: string) => {
   return { background: `#${hex}`, mark: lum > 0.45 ? "#1B1717" : "#FFFFFF" };
 };
 
-export function SubscriptionIcon({ name, size = "md", className }: SubscriptionIconProps) {
+export function SubscriptionIcon({ name, brand: savedBrand, size = "md", className }: SubscriptionIconProps) {
   const lowerCaseName = name.toLowerCase();
   const s = SIZES[size];
 
-  const brand = BRANDS.find((b) => b.keywords.some((k) => lowerCaseName.includes(k)));
+  const brand = resolveBrand(name, savedBrand);
   if (brand) {
     const colors = brandColors(brand.icon.hex);
     return (
       <div
         aria-hidden="true"
-        data-brand={brand.icon.slug}
+        data-brand={brand.id}
         className={cn("flex shrink-0 items-center justify-center ring-1 ring-inset ring-white/10", s.box, className)}
         style={{ backgroundColor: colors.background }}
       >
@@ -132,7 +75,8 @@ export function SubscriptionIcon({ name, size = "md", className }: SubscriptionI
     );
   }
 
-  const glyph = GLYPHS.find((g) => g.keywords.some((k) => lowerCaseName.includes(k)));
+  // A deliberate "no logo" choice means initials, not a guessed glyph.
+  const glyph = savedBrand ? undefined : GLYPHS.find((g) => g.keywords.some((k) => lowerCaseName.includes(k)));
   const initials =
     name
       .split(" ")

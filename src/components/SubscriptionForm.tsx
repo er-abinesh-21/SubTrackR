@@ -24,12 +24,22 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Subscription } from "@/types";
 import { DEFAULT_CURRENCY, parseDueDate } from "@/lib/subscriptions";
-import { useEffect } from "react";
+import { NO_BRAND, brandsByCategory, detectBrand, findBrand } from "@/lib/brands";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { SubscriptionIcon } from "@/components/SubscriptionIcon";
+import { useEffect, useState } from "react";
 
 const CURRENCIES = [
     { value: "INR", label: "INR - Indian Rupee" },
@@ -50,6 +60,7 @@ const formSchema = z.object({
     .min(0, { message: "Price cannot be negative." }),
   currency: z.string().default(DEFAULT_CURRENCY),
   category: z.string().optional(),
+  brand: z.string().default(NO_BRAND),
   billing_cycle: z.enum(["monthly", "yearly", "one-time"]),
   next_due_date: z.date({ required_error: "A due date is required." }),
 });
@@ -70,9 +81,19 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
       price: 0,
       currency: DEFAULT_CURRENCY,
       category: "",
+      brand: NO_BRAND,
       billing_cycle: "monthly",
     },
   });
+
+  // The logo follows the typed name until the user picks one themselves.
+  const [brandChosenByUser, setBrandChosenByUser] = useState(false);
+  const [brandPickerOpen, setBrandPickerOpen] = useState(false);
+  const name = form.watch("name");
+
+  useEffect(() => {
+    if (!brandChosenByUser) form.setValue("brand", detectBrand(name) ?? NO_BRAND);
+  }, [name, brandChosenByUser, form]);
 
   useEffect(() => {
     if (subscription) {
@@ -81,18 +102,25 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
         price: subscription.price,
         currency: subscription.currency || DEFAULT_CURRENCY,
         category: subscription.category || "",
+        brand: subscription.brand ?? detectBrand(subscription.name) ?? NO_BRAND,
         billing_cycle: subscription.billing_cycle as "monthly" | "yearly" | "one-time",
         next_due_date: parseDueDate(subscription.next_due_date) ?? undefined,
       });
+      // A saved logo that differs from what the name suggests was a deliberate choice.
+      setBrandChosenByUser(
+        subscription.brand != null && subscription.brand !== (detectBrand(subscription.name) ?? NO_BRAND)
+      );
     } else {
       form.reset({
         name: "",
         price: 0,
         currency: DEFAULT_CURRENCY,
         category: "",
+        brand: NO_BRAND,
         billing_cycle: "monthly",
         next_due_date: undefined,
       });
+      setBrandChosenByUser(false);
     }
   }, [subscription, form]);
 
@@ -111,6 +139,96 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
               <FormMessage />
             </FormItem>
           )}
+        />
+        <FormField
+          control={form.control}
+          name="brand"
+          render={({ field }) => {
+            const selected = findBrand(field.value);
+            const choose = (value: string) => {
+              setBrandChosenByUser(true);
+              field.onChange(value);
+              setBrandPickerOpen(false);
+            };
+            return (
+              <FormItem>
+                <FormLabel>Logo</FormLabel>
+                <Popover open={brandPickerOpen} onOpenChange={setBrandPickerOpen}>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={brandPickerOpen}
+                        className="h-11 w-full justify-between bg-background/60 px-3.5 font-normal"
+                      >
+                        <span className="flex min-w-0 items-center gap-2.5">
+                          {selected ? (
+                            <>
+                              <SubscriptionIcon name={selected.label} brand={selected.id} size="sm" className="h-6 w-6 rounded-md" />
+                              <span className="truncate">{selected.label}</span>
+                            </>
+                          ) : (
+                            <span className="text-muted-foreground">No logo (initials)</span>
+                          )}
+                        </span>
+                        <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search brands" />
+                      <CommandList className="max-h-72">
+                        <CommandEmpty>No brand found. Choose "No logo" to use initials.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem value="no logo initials" onSelect={() => choose(NO_BRAND)}>
+                            <Check className={cn("mr-2 h-4 w-4", selected ? "opacity-0" : "opacity-100")} />
+                            No logo (initials)
+                          </CommandItem>
+                        </CommandGroup>
+                        {brandsByCategory().map((group) => (
+                          <CommandGroup key={group.category} heading={group.category}>
+                            {group.brands.map((b) => (
+                              <CommandItem
+                                key={b.id}
+                                value={`${b.label} ${group.category}`}
+                                onSelect={() => choose(b.id)}
+                              >
+                                <Check className={cn("mr-2 h-4 w-4", selected?.id === b.id ? "opacity-100" : "opacity-0")} />
+                                <SubscriptionIcon name={b.label} brand={b.id} size="sm" className="mr-2.5 h-6 w-6 rounded-md" />
+                                {b.label}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        ))}
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                <p className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                  <span>
+                    {brandChosenByUser
+                      ? "You picked this logo."
+                      : selected
+                        ? "Matched from the name. Change it if it's wrong."
+                        : "No logo matched yet. Pick one if it applies."}
+                  </span>
+                  {brandChosenByUser && (
+                    <button
+                      type="button"
+                      onClick={() => setBrandChosenByUser(false)}
+                      className="shrink-0 rounded-md text-foreground underline underline-offset-4 hover:text-highlight"
+                    >
+                      Match from name
+                    </button>
+                  )}
+                </p>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
         <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-3">
           <FormField

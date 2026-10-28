@@ -141,6 +141,66 @@ describe("Dashboard", () => {
     expect(screen.queryByRole("menuitem", { name: "Mark as paid" })).not.toBeInTheDocument();
   });
 
+  describe("logo picker", () => {
+    const openForm = async () => {
+      const user = userEvent.setup();
+      renderDashboard();
+      await screen.findByRole("heading", { name: "Dashboard" });
+      await user.click(screen.getByRole("button", { name: "Add subscription" }));
+      const dialog = await screen.findByRole("dialog");
+      return { user, dialog, logo: () => within(dialog).getByRole("combobox", { name: "Logo" }) };
+    };
+
+    it("starts with no logo and picks one from the typed name", async () => {
+      const { user, dialog, logo } = await openForm();
+      expect(logo()).toHaveTextContent("No logo");
+
+      const name = within(dialog).getByRole("textbox", { name: "Subscription Name" });
+      await user.type(name, "Netflix");
+      expect(logo()).toHaveTextContent("Netflix");
+
+      await user.clear(name);
+      await user.type(name, "Spotify Family");
+      expect(logo()).toHaveTextContent("Spotify");
+
+      await user.clear(name);
+      await user.type(name, "Gym membership");
+      expect(logo()).toHaveTextContent("No logo");
+    });
+
+    it("keeps the user's own choice while the name changes, until they ask to match again", async () => {
+      const { user, dialog, logo } = await openForm();
+      const name = within(dialog).getByRole("textbox", { name: "Subscription Name" });
+      await user.type(name, "Netflix");
+
+      await user.click(logo());
+      await user.click(await screen.findByRole("option", { name: "Spotify" }));
+      expect(logo()).toHaveTextContent("Spotify");
+      expect(within(dialog).getByText("You picked this logo.")).toBeInTheDocument();
+
+      await user.type(name, " Premium");
+      expect(logo()).toHaveTextContent("Spotify");
+
+      await user.click(within(dialog).getByRole("button", { name: "Match from name" }));
+      expect(logo()).toHaveTextContent("Netflix");
+    });
+
+    it("offers the brands grouped by category, with search", async () => {
+      const { user, logo } = await openForm();
+      await user.click(logo());
+      const list = await screen.findByRole("listbox");
+      ["Streaming", "Music & audio", "Cloud storage", "Gaming", "AI", "Developer & hosting", "Learning", "Finance & payments"].forEach(
+        (c) => expect(within(list).getByText(c)).toBeInTheDocument()
+      );
+      expect(within(list).getByRole("option", { name: "No logo (initials)" })).toBeInTheDocument();
+      expect(within(list).getByRole("option", { name: "Netflix" })).toBeInTheDocument();
+
+      await user.type(screen.getByPlaceholderText("Search brands"), "spot");
+      expect(within(screen.getByRole("listbox")).getByRole("option", { name: "Spotify" })).toBeInTheDocument();
+      expect(within(screen.getByRole("listbox")).queryByRole("option", { name: "Netflix" })).not.toBeInTheDocument();
+    });
+  });
+
   it("asks for confirmation before deleting", async () => {
     const user = userEvent.setup();
     renderDashboard();
