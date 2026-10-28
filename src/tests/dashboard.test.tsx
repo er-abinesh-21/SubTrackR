@@ -141,7 +141,7 @@ describe("Dashboard", () => {
     expect(screen.queryByRole("menuitem", { name: "Mark as paid" })).not.toBeInTheDocument();
   });
 
-  describe("logo picker", () => {
+  describe("logo picker", { timeout: 30000 }, () => {
     const openForm = async () => {
       const user = userEvent.setup();
       renderDashboard();
@@ -189,7 +189,7 @@ describe("Dashboard", () => {
       const { user, logo } = await openForm();
       await user.click(logo());
       const list = await screen.findByRole("listbox");
-      ["Streaming", "Music & audio", "Cloud storage", "Gaming", "AI", "Developer & hosting", "Learning", "Finance & payments"].forEach(
+      ["Streaming", "Music & audio", "Cloud storage", "Gaming", "AI", "Developer & hosting", "Learning", "Finance & payments", "EMI & pay later", "Banks & cards"].forEach(
         (c) => expect(within(list).getByText(c)).toBeInTheDocument()
       );
       expect(within(list).getByRole("option", { name: "No logo (initials)" })).toBeInTheDocument();

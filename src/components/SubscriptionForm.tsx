@@ -29,7 +29,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Subscription } from "@/types";
 import { DEFAULT_CURRENCY, parseDueDate } from "@/lib/subscriptions";
-import { NO_BRAND, brandsByCategory, detectBrand, findBrand } from "@/lib/brands";
+import { NO_BRAND, brandSearchValue, brandsByCategory, detectBrand, findBrand, matchesBrandSearch } from "@/lib/brands";
 import {
   Command,
   CommandEmpty,
@@ -178,7 +178,7 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
                     </FormControl>
                   </PopoverTrigger>
                   <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-                    <Command>
+                    <Command filter={matchesBrandSearch}>
                       <CommandInput placeholder="Search brands" />
                       <CommandList className="max-h-72">
                         <CommandEmpty>No brand found. Choose "No logo" to use initials.</CommandEmpty>
@@ -193,7 +193,7 @@ export function SubscriptionForm({ subscription, onSave, isSaving }: Subscriptio
                             {group.brands.map((b) => (
                               <CommandItem
                                 key={b.id}
-                                value={`${b.label} ${group.category}`}
+                                value={brandSearchValue(b)}
                                 onSelect={() => choose(b.id)}
                               >
                                 <Check className={cn("mr-2 h-4 w-4", selected?.id === b.id ? "opacity-100" : "opacity-0")} />

@@ -233,6 +233,14 @@ import {
   siZoho,
   siZomato,
   siZoom,
+  siAfterpay,
+  siAmericanexpress,
+  siAxisbank,
+  siElevenlabs,
+  siHdfcbank,
+  siIcicibank,
+  siKlarna,
+  siSuno,
   SimpleIcon,
 } from "simple-icons";
 
@@ -250,6 +258,8 @@ export type BrandCategory =
   | "Creators"
   | "Fitness & health"
   | "Finance & payments"
+  | "EMI & pay later"
+  | "Banks & cards"
   | "Security & VPN"
   | "Food, shopping & travel"
   | "Telecom"
@@ -262,7 +272,10 @@ export interface Brand {
   category: BrandCategory;
   /** Lowercase words or phrases in a subscription name that point to this brand. */
   keywords: string[];
-  icon: SimpleIcon;
+  /** A bundled official mark. Brands without one use `domain` instead. */
+  icon?: SimpleIcon;
+  /** Website the logo is loaded from when no mark is bundled. */
+  domain?: string;
 }
 
 export const BRAND_CATEGORIES: BrandCategory[] = [
@@ -279,6 +292,8 @@ export const BRAND_CATEGORIES: BrandCategory[] = [
   "Creators",
   "Fitness & health",
   "Finance & payments",
+  "EMI & pay later",
+  "Banks & cards",
   "Security & VPN",
   "Food, shopping & travel",
   "Telecom",
@@ -525,4 +540,12 @@ export const BRANDS: Brand[] = [
   { id: siMeetup.slug, label: "Meetup", category: "Lifestyle", keywords: ["meetup"], icon: siMeetup },
   { id: siBookmyshow.slug, label: "BookMyShow", category: "Lifestyle", keywords: ["bookmyshow","book my show"], icon: siBookmyshow },
   { id: siTesla.slug, label: "Tesla", category: "Lifestyle", keywords: ["tesla"], icon: siTesla },
+  { id: siKlarna.slug, label: "Klarna", category: "EMI & pay later", keywords: ["klarna"], icon: siKlarna },
+  { id: siAfterpay.slug, label: "Afterpay", category: "EMI & pay later", keywords: ["afterpay"], icon: siAfterpay },
+  { id: siAmericanexpress.slug, label: "American Express", category: "Banks & cards", keywords: ["american express", "amex"], icon: siAmericanexpress },
+  { id: siHdfcbank.slug, label: "HDFC Bank", category: "Banks & cards", keywords: ["hdfc"], icon: siHdfcbank },
+  { id: siIcicibank.slug, label: "ICICI Bank", category: "Banks & cards", keywords: ["icici"], icon: siIcicibank },
+  { id: siAxisbank.slug, label: "Axis Bank", category: "Banks & cards", keywords: ["axis bank"], icon: siAxisbank },
+  { id: siElevenlabs.slug, label: "ElevenLabs", category: "AI", keywords: ["elevenlabs", "eleven labs"], icon: siElevenlabs },
+  { id: siSuno.slug, label: "Suno", category: "AI", keywords: ["suno"], icon: siSuno },
 ];
