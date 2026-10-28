@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Trash2, Pencil, Search, PauseCircle, PlayCircle, Plus } from "lucide-react";
+import { MoreHorizontal, Trash2, Pencil, Search, PauseCircle, PlayCircle, Plus, CheckCircle2 } from "lucide-react";
 import { Subscription } from "@/types";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
@@ -33,7 +33,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useState, useMemo } from "react";
 import { SubscriptionIcon } from "./SubscriptionIcon";
 import { LogoMark } from "./Logo";
-import { formatCurrency, isActive, parseDueDate, getNextDueDate, daysUntil, describeDays } from "@/lib/subscriptions";
+import { formatCurrency, isActive, isPaidOneTime, parseDueDate, getNextDueDate, daysUntil, describeDays } from "@/lib/subscriptions";
 import { cn } from "@/lib/utils";
 
 const CYCLE_LABELS: Record<string, string> = {
@@ -47,10 +47,11 @@ interface SubscriptionListProps {
   onEdit: (subscription: Subscription) => void;
   onDelete: (id: string) => void;
   onToggleActive: (subscription: Subscription) => void;
+  onMarkPaid: (subscription: Subscription) => void;
   onAdd: () => void;
 }
 
-export function SubscriptionList({ subscriptions, onEdit, onDelete, onToggleActive, onAdd }: SubscriptionListProps) {
+export function SubscriptionList({ subscriptions, onEdit, onDelete, onToggleActive, onMarkPaid, onAdd }: SubscriptionListProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [pendingDelete, setPendingDelete] = useState<Subscription | null>(null);
@@ -157,6 +158,7 @@ export function SubscriptionList({ subscriptions, onEdit, onDelete, onToggleActi
                         <div className="flex items-center gap-2 font-medium leading-tight">
                           <span className="truncate">{sub.name}</span>
                           {!active && <Badge variant="secondary" className="rounded-md font-normal">Paused</Badge>}
+                          {isPaidOneTime(sub) && <Badge variant="secondary" className="rounded-md font-normal">Paid</Badge>}
                         </div>
                         <p className="mt-0.5 truncate text-sm text-muted-foreground">{sub.category || "N/A"}</p>
                         {shown && (
@@ -182,6 +184,11 @@ export function SubscriptionList({ subscriptions, onEdit, onDelete, onToggleActi
                         {describeDays(daysUntil(next))}
                       </span>
                     )}
+                    {sub.last_paid_at && parseDueDate(sub.last_paid_at) && (
+                      <span className="block text-sm text-muted-foreground">
+                        Paid {format(parseDueDate(sub.last_paid_at) as Date, "MMM dd")}
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell className={cn("whitespace-nowrap text-right font-medium tnum", !active && "opacity-55")}>
                     {formatCurrency(sub.price, sub.currency)}
@@ -195,6 +202,12 @@ export function SubscriptionList({ subscriptions, onEdit, onDelete, onToggleActi
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-44 rounded-xl p-1.5">
+                        {active && !isPaidOneTime(sub) && (
+                          <DropdownMenuItem onClick={() => onMarkPaid(sub)} className="rounded-lg">
+                            <CheckCircle2 className="mr-2 h-4 w-4" />
+                            <span>Mark as paid</span>
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem onClick={() => onEdit(sub)} className="rounded-lg">
                           <Pencil className="mr-2 h-4 w-4" />
                           <span>Edit</span>

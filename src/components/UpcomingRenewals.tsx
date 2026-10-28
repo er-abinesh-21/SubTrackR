@@ -1,15 +1,16 @@
 import { Subscription } from "@/types";
 import { format } from "date-fns";
-import { CalendarClock } from "lucide-react";
+import { CalendarClock, Check } from "lucide-react";
 import { SubscriptionIcon } from "./SubscriptionIcon";
 import { daysUntil, describeDays, formatCurrency, getNextDueDate, isActive } from "@/lib/subscriptions";
 import { cn } from "@/lib/utils";
 
 interface UpcomingRenewalsProps {
   subscriptions: Subscription[];
+  onMarkPaid?: (subscription: Subscription) => void;
 }
 
-export function UpcomingRenewals({ subscriptions }: UpcomingRenewalsProps) {
+export function UpcomingRenewals({ subscriptions, onMarkPaid }: UpcomingRenewalsProps) {
   const upcoming = subscriptions
     .filter(isActive)
     .map((sub) => ({ sub, dueDate: getNextDueDate(sub) }))
@@ -49,6 +50,17 @@ export function UpcomingRenewals({ subscriptions }: UpcomingRenewalsProps) {
                   </p>
                 </div>
                 <p className="font-medium tnum">{formatCurrency(sub.price, sub.currency)}</p>
+                {onMarkPaid && (
+                  <button
+                    type="button"
+                    onClick={() => onMarkPaid(sub)}
+                    aria-label={`Mark ${sub.name} as paid`}
+                    title="Mark as paid"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground ring-1 ring-border transition-colors hover:bg-primary hover:text-primary-foreground hover:ring-primary"
+                  >
+                    <Check className="h-4 w-4" />
+                  </button>
+                )}
               </li>
             );
           })}

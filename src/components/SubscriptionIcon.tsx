@@ -8,6 +8,35 @@ import {
   ShoppingBag,
   Zap,
 } from "lucide-react";
+import {
+  siApplemusic,
+  siAppletv,
+  siAudible,
+  siClaude,
+  siCrunchyroll,
+  siDropbox,
+  siFigma,
+  siGithub,
+  siGoogledrive,
+  siGoogleplay,
+  siHbomax,
+  siIcloud,
+  siLinear,
+  siMedium,
+  siNetflix,
+  siNotion,
+  siPandora,
+  siPlaystation,
+  siPlex,
+  siSoundcloud,
+  siSpotify,
+  siSteam,
+  siTidal,
+  siYoutube,
+  siYoutubemusic,
+  siZoom,
+  SimpleIcon,
+} from "simple-icons";
 import { cn } from "@/lib/utils";
 
 interface SubscriptionIconProps {
@@ -16,29 +45,94 @@ interface SubscriptionIconProps {
   className?: string;
 }
 
-// Known services get a glyph; everything else gets initials. Tiles stay in the theme's
-// own colours so a long list reads as one family rather than a rainbow.
-const ICON_MAPPINGS: { keywords: string[]; icon: React.ElementType }[] = [
-  { keywords: ["netflix", "hulu", "hbo", "disney", "apple tv", "plex", "crunchyroll"], icon: Tv },
-  { keywords: ["spotify", "apple music", "tidal", "pandora", "soundcloud"], icon: Music },
-  { keywords: ["youtube"], icon: Youtube },
-  { keywords: ["icloud", "dropbox", "google drive", "onedrive"], icon: Cloud },
-  { keywords: ["xbox", "playstation", "nintendo", "steam"], icon: Gamepad2 },
-  { keywords: ["new york times", "washington post", "wsj", "medium"], icon: Newspaper },
+// Official brand marks (simple-icons, CC0). Order matters: the first match wins, so more
+// specific names come before general ones ("youtube music" before "youtube").
+const BRANDS: { keywords: string[]; icon: SimpleIcon }[] = [
+  { keywords: ["netflix"], icon: siNetflix },
+  { keywords: ["youtube music"], icon: siYoutubemusic },
+  { keywords: ["youtube"], icon: siYoutube },
+  { keywords: ["apple music"], icon: siApplemusic },
+  { keywords: ["apple tv"], icon: siAppletv },
+  { keywords: ["spotify"], icon: siSpotify },
+  { keywords: ["hbo"], icon: siHbomax },
+  { keywords: ["crunchyroll"], icon: siCrunchyroll },
+  { keywords: ["plex"], icon: siPlex },
+  { keywords: ["tidal"], icon: siTidal },
+  { keywords: ["soundcloud"], icon: siSoundcloud },
+  { keywords: ["pandora"], icon: siPandora },
+  { keywords: ["audible"], icon: siAudible },
+  { keywords: ["icloud"], icon: siIcloud },
+  { keywords: ["dropbox"], icon: siDropbox },
+  { keywords: ["google drive"], icon: siGoogledrive },
+  { keywords: ["google play"], icon: siGoogleplay },
+  { keywords: ["playstation", "ps plus"], icon: siPlaystation },
+  { keywords: ["steam"], icon: siSteam },
+  { keywords: ["figma"], icon: siFigma },
+  { keywords: ["notion"], icon: siNotion },
+  { keywords: ["linear"], icon: siLinear },
+  { keywords: ["github"], icon: siGithub },
+  { keywords: ["medium"], icon: siMedium },
+  { keywords: ["zoom"], icon: siZoom },
+  { keywords: ["claude", "anthropic"], icon: siClaude },
+];
+
+// Services whose official marks are not available: a glyph that hints at the category.
+const GLYPHS: { keywords: string[]; icon: React.ElementType }[] = [
+  { keywords: ["hulu", "disney", "prime video"], icon: Tv },
+  { keywords: ["xbox", "nintendo"], icon: Gamepad2 },
+  { keywords: ["new york times", "washington post", "wsj"], icon: Newspaper },
   { keywords: ["amazon prime", "walmart+"], icon: ShoppingBag },
-  { keywords: ["adobe", "figma", "canva", "notion", "office 365"], icon: Zap },
+  { keywords: ["adobe", "canva", "office 365"], icon: Zap },
+  { keywords: ["onedrive"], icon: Cloud },
+  { keywords: ["music"], icon: Music },
+  { keywords: ["video"], icon: Youtube },
 ];
 
 const SIZES = {
-  sm: { box: "h-8 w-8 rounded-lg", icon: "h-4 w-4", text: "text-[0.7rem]" },
-  md: { box: "h-10 w-10 rounded-[11px]", icon: "h-[18px] w-[18px]", text: "text-sm" },
+  sm: { box: "h-8 w-8 rounded-lg", glyph: "h-4 w-4", mark: "h-[17px] w-[17px]", text: "text-[0.7rem]" },
+  md: { box: "h-10 w-10 rounded-[11px]", glyph: "h-[18px] w-[18px]", mark: "h-[22px] w-[22px]", text: "text-sm" },
+};
+
+const luminance = (hex: string) => {
+  const channel = (i: number) => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4);
+};
+
+/**
+ * Brand marks sit on the brand's own colour. Near-black brands (Notion, Medium, Tidal...)
+ * would vanish on this dark theme, so they get a light tile with a dark mark instead.
+ */
+const brandColors = (hex: string) => {
+  const lum = luminance(hex);
+  if (lum < 0.03) return { background: "#EDEBDD", mark: hex === "000000" ? "#1B1717" : `#${hex}` };
+  return { background: `#${hex}`, mark: lum > 0.45 ? "#1B1717" : "#FFFFFF" };
 };
 
 export function SubscriptionIcon({ name, size = "md", className }: SubscriptionIconProps) {
   const lowerCaseName = name.toLowerCase();
-  const match = ICON_MAPPINGS.find((m) => m.keywords.some((k) => lowerCaseName.includes(k)));
   const s = SIZES[size];
 
+  const brand = BRANDS.find((b) => b.keywords.some((k) => lowerCaseName.includes(k)));
+  if (brand) {
+    const colors = brandColors(brand.icon.hex);
+    return (
+      <div
+        aria-hidden="true"
+        data-brand={brand.icon.slug}
+        className={cn("flex shrink-0 items-center justify-center ring-1 ring-inset ring-white/10", s.box, className)}
+        style={{ backgroundColor: colors.background }}
+      >
+        <svg viewBox="0 0 24 24" className={s.mark} fill={colors.mark} role="img">
+          <path d={brand.icon.path} />
+        </svg>
+      </div>
+    );
+  }
+
+  const glyph = GLYPHS.find((g) => g.keywords.some((k) => lowerCaseName.includes(k)));
   const initials =
     name
       .split(" ")
@@ -58,7 +152,7 @@ export function SubscriptionIcon({ name, size = "md", className }: SubscriptionI
         className
       )}
     >
-      {match ? <match.icon className={s.icon} strokeWidth={1.75} /> : initials}
+      {glyph ? <glyph.icon className={s.glyph} strokeWidth={1.75} /> : initials}
     </div>
   );
 }

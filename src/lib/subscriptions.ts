@@ -37,6 +37,25 @@ export const parseDueDate = (value: string | null | undefined): Date | null => {
 
 export const isActive = (sub: Subscription) => sub.is_active !== false;
 
+/** A one-time payment that has been paid has nothing left to charge. */
+export const isPaidOneTime = (sub: Subscription) => sub.billing_cycle === "one-time" && !!sub.last_paid_at;
+
+/**
+ * The fields to save when a subscription is marked as paid: today is recorded as the
+ * payment date, and a recurring subscription moves one cycle past its due date.
+ * One-time payments keep their date and count as settled (see isPaidOneTime).
+ */
+export const markPaidUpdate = (
+  sub: Subscription,
+  today: Date = new Date()
+): Pick<Subscription, "last_paid_at" | "next_due_date"> => {
+  const stored = parseDueDate(sub.next_due_date);
+  let nextDue = sub.next_due_date;
+  if (stored && sub.billing_cycle === "monthly") nextDue = toDueDateString(addMonths(stored, 1));
+  if (stored && sub.billing_cycle === "yearly") nextDue = toDueDateString(addYears(stored, 1));
+  return { last_paid_at: toDueDateString(today), next_due_date: nextDue };
+};
+
 /**
  * The currency used by most subscriptions. Ties resolve alphabetically so the
  * result does not depend on the order documents are returned in.
@@ -76,6 +95,7 @@ export const yearlyCost = (sub: Subscription): number => {
  * payment that is already in the past has no next date.
  */
 export const getNextDueDate = (sub: Subscription, today: Date = new Date()): Date | null => {
+  if (isPaidOneTime(sub)) return null;
   const stored = parseDueDate(sub.next_due_date);
   if (!stored) return null;
 

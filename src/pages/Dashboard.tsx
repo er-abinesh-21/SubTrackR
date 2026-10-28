@@ -25,7 +25,8 @@ import { CategoryChart } from "@/components/CategoryChart";
 import { UpcomingRenewals } from "@/components/UpcomingRenewals";
 import { RenewalRuler } from "@/components/RenewalRuler";
 import { BrandLoader } from "@/components/Logo";
-import { isActive, toDueDateString } from "@/lib/subscriptions";
+import { isActive, markPaidUpdate, parseDueDate, toDueDateString } from "@/lib/subscriptions";
+import { format } from "date-fns";
 
 const errorMessage = (error: unknown) => (error instanceof Error ? error.message : "Unknown error");
 
@@ -100,6 +101,35 @@ const Dashboard = () => {
     onError: (err) => showError(`Failed to update subscription: ${errorMessage(err)}`),
   });
 
+  const markPaidMutation = useMutation({
+    mutationFn: (subscription: Subscription) => updateSubscription(subscription.id, markPaidUpdate(subscription)),
+    onSuccess: (_data, subscription) => {
+      const update = markPaidUpdate(subscription);
+      const nextDue = parseDueDate(update.next_due_date);
+      const recurring = subscription.billing_cycle !== "one-time";
+      showSuccess(
+        recurring && nextDue
+          ? `${subscription.name} marked as paid. Next charge ${format(nextDue, "MMM d")}.`
+          : `${subscription.name} marked as paid.`,
+        {
+          action: {
+            label: "Undo",
+            onClick: () => {
+              updateSubscription(subscription.id, {
+                next_due_date: subscription.next_due_date,
+                last_paid_at: subscription.last_paid_at ?? null,
+              })
+                .then(refresh)
+                .catch((err) => showError(`Failed to undo: ${errorMessage(err)}`));
+            },
+          },
+        }
+      );
+      refresh();
+    },
+    onError: (err) => showError(`Failed to mark as paid: ${errorMessage(err)}`),
+  });
+
   const handleOpenForm = (subscription: Subscription | null = null) => {
     setEditingSubscription(subscription);
     setIsFormOpen(true);
@@ -141,7 +171,10 @@ const Dashboard = () => {
           <CategoryChart subscriptions={subscriptions} />
         </div>
         <div className="lg:col-span-2">
-          <UpcomingRenewals subscriptions={subscriptions} />
+          <UpcomingRenewals
+            subscriptions={subscriptions}
+            onMarkPaid={(subscription) => markPaidMutation.mutate(subscription)}
+          />
         </div>
       </div>
 
@@ -150,6 +183,7 @@ const Dashboard = () => {
         onEdit={handleOpenForm}
         onDelete={(id) => deleteMutation.mutate(id)}
         onToggleActive={(subscription) => toggleActiveMutation.mutate(subscription)}
+        onMarkPaid={(subscription) => markPaidMutation.mutate(subscription)}
         onAdd={() => handleOpenForm()}
       />
 

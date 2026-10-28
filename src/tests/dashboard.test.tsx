@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { addDays, format } from "date-fns";
+import { addDays, addMonths, format } from "date-fns";
 import Dashboard from "../pages/Dashboard";
 import { Subscription } from "@/types";
 
@@ -106,6 +106,39 @@ describe("Dashboard", () => {
     await user.click(screen.getByRole("button", { name: "Add subscription" }));
     const dialog = await screen.findByRole("dialog");
     expect(within(dialog).getByRole("combobox", { name: "Currency" })).toHaveTextContent("INR");
+  });
+
+  it("marks a subscription as paid from the row menu and rolls its due date forward", async () => {
+    const user = userEvent.setup();
+    renderDashboard();
+    await screen.findByRole("heading", { name: "Dashboard" });
+
+    await user.click(within(screen.getByRole("row", { name: /Netflix/ })).getByRole("button", { name: "Open menu" }));
+    await user.click(await screen.findByRole("menuitem", { name: "Mark as paid" }));
+
+    expect(api.updateSubscription).toHaveBeenCalledWith("a", {
+      last_paid_at: format(new Date(), "yyyy-MM-dd"),
+      next_due_date: format(addMonths(addDays(new Date(), 3), 1), "yyyy-MM-dd"),
+    });
+  });
+
+  it("marks a renewal as paid from the upcoming list", async () => {
+    const user = userEvent.setup();
+    renderDashboard();
+    await screen.findByRole("heading", { name: "Dashboard" });
+
+    await user.click(screen.getByRole("button", { name: "Mark Netflix as paid" }));
+    expect(api.updateSubscription).toHaveBeenCalledWith("a", expect.objectContaining({ last_paid_at: expect.any(String) }));
+  });
+
+  it("does not offer Mark as paid for a paused subscription", async () => {
+    const user = userEvent.setup();
+    renderDashboard();
+    await screen.findByRole("heading", { name: "Dashboard" });
+
+    await user.click(within(screen.getByRole("row", { name: /Old Gym/ })).getByRole("button", { name: "Open menu" }));
+    await screen.findByRole("menuitem", { name: "Resume" });
+    expect(screen.queryByRole("menuitem", { name: "Mark as paid" })).not.toBeInTheDocument();
   });
 
   it("asks for confirmation before deleting", async () => {
